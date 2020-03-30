@@ -1,0 +1,111 @@
+.tool-bar__wrap {
+  background-color: #2b579a;
+  padding-top: 8px;
+  font-size: 14px;
+  color: #fff;
+  box-shadow: -1px 1px 2px 1px rgba(200,200,200,0.6);
+}
+
+.tool-bar__tab-list {
+  padding: 0 40px;
+}
+
+.tool-bar__tab-item {
+  line-height: 28px;
+  display: inline-block;
+  padding: 0 16px;
+  cursor: pointer;
+}
+
+.tool-bar__tab-item.is-active {
+  background-color: #f3f3f3;
+  color: #2b579a;
+}
+
+.tool-bar__tab-item:not(.is-active):hover {
+  background-color: #124078;
+}
+
+.tool-bar__tool--base, .tool-bar__tool--insert, .tool-bar__tool--layout {
+  background-color: #f3f3f3;
+  color: #505050;
+  height: 32px;
+  line-height: 32px;
+  padding: 4px 8px;
+  box-sizing: border-box;
+}
+
+.zeditor-tool__item {
+  height: 24px;
+  line-height: 24px;
+  width: 24px;
+  margin: 0 4px;
+  text-align: center;
+  border-radius: 1px;
+  display: inline-block;
+  cursor: pointer;
+  vertical-align: top;
+}
+
+.zeditor-tool__item.item--active,
+.zeditor-tool__item:hover {
+  background-color: #c6c6c6;
+}
+
+.tool-bar__title {
+  text-align: center;
+  color: #fff;
+}
+/* 工具栏样式结束 */
+
+.editor-body__wrap {
+  position: relative;
+  background-color: #fff;
+  color: #000;
+  line-height: 1.5;
+  font-size: 11pt;
+  overflow: hidden auto;
+  outline: none;
+  padding: 16px;
+  box-sizing: border-box;
+  margin-top: 8px;
+}
+
+
+
+/* 编辑器主体部分样式结束 */
+
+[class*=" ze-icon-"], [class^=ze-icon-] {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+  font-size: 16px;
+  font-style: normal;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.ze-icon-bold:after {
+  content: 'B';
+  font-weight: bold;
+}
+
+.ze-icon-italic:after {
+  content: 'I';
+  font-style: italic;
+}
+
+.ze-icon-underline:after {
+  content: 'U';
+  text-decoration: underline;
+  font-size: 15px;
+  vertical-align: top;
+}
+
+.ze-icon-deleteline:after {
+  content: 'S';
+  text-decoration: line-through;
+}
+
+
