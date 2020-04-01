@@ -1,6 +1,6 @@
 import { ToolItem, ToolBar } from "./tool-bar";
 import $Z from '../domUtil/index';
-import command from "./commands";
+import { execCommand, queryCommand } from "./commands";
 
 export default class ZEditor {
   toolBar: ToolBar
@@ -30,17 +30,21 @@ export default class ZEditor {
   initBody() {
     this.$toolBar = this.el.querySelector(".tool-bar__wrap");
     if(this.$toolBar) {
-      let top = this.$toolBar.clientHeight;
-      let height = this.el.clientHeight;
       this.$body = document.createElement("div");
       this.$body.className = "editor-body__wrap";
       this.$body.contentEditable = "true";
-      this.$body.style.height = Math.floor(height - top - 8) + "px";
+      this.calcBodyHeight();
       this.el.appendChild(this.$body);
     }
     else {
       console.error("init toolBar failed!");
     }
+  }
+
+  calcBodyHeight() {
+    let top = this.$toolBar.clientHeight;
+    let height = this.el.clientHeight;
+    this.$body.style.height = Math.floor(height - top - 8) + "px";
   }
 
   init() {
@@ -51,32 +55,38 @@ export default class ZEditor {
     this.eventBind();
   }
 
-  toolCommand(evt: UIEvent, tool: ToolItem) {
-    if(tool.handler) {
-      tool.handler(evt, this.ranges);
-    }
-    else {
-      //this.selection
-      let selection = window.getSelection();
-      selection.removeAllRanges();
-      this.ranges.forEach(range => {
-        selection.addRange(range);
-      });
-      this.execCommand(tool.key);
-    }
+  toolCommand(evt: UIEvent, tool: ToolItem) { // 工具栏点击事件回调
+    let selection = window.getSelection();
+    selection.removeAllRanges();
+    this.ranges.forEach(range => {
+      selection.addRange(range);
+    });
+    tool.handler(evt, this.ranges);
+    this.getSelection();
   }
 
-  getSelection() {
+  getSelection() { // 保存当前选区，保存为range
     let selection = window.getSelection();
     this.ranges = [];
     for(let i=0; i<selection.rangeCount; i++) {
       this.ranges.push(selection.getRangeAt(i));
-    }
+    }   
+    let baseTool: Array<ToolItem> = this.toolBar.tool.base as Array<ToolItem>; // 每次保存选区时检测工具栏状态
+    for(let j=0,len=baseTool.length; j<len; j++) {
+      baseTool[j].queryState && this.toolBar.setToolState(baseTool[j], baseTool[j].queryState(this.ranges));
+    }      
   }
 
-  execCommand(cmdName: string) {
-    command(cmdName);
+  execCommand(cmdName: string, cmdParam?: string, ranges?: Array<Range>) { // 执行command命令
+    ranges && (this.ranges = ranges);
     this.getSelection();
+    execCommand(cmdName, cmdParam);
+  }
+
+  queryCommand(cmdName: string, ranges?: Array<Range>, ) { // 查询command状态
+    ranges && (this.ranges = ranges);
+    this.getSelection();
+    return queryCommand(cmdName);
   }
 
   domRended(task: Function, dom: HTMLElement) {
@@ -95,6 +105,8 @@ export default class ZEditor {
   eventBind() {
     let vm = this;
     vm.getSelection = vm.getSelection.bind(vm);
+    vm.calcBodyHeight = vm.calcBodyHeight.bind(vm);
     $Z(this.$body).on("mouseup", vm.getSelection);
+    $Z.onResize(vm.calcBodyHeight);
   }
 }

@@ -1,5 +1,7 @@
-const command = function(cmdName: string) {
-  document.execCommand(cmdName);
+export const execCommand = function(cmdName: string, cmdParam?: string): boolean {
+  return document.execCommand(cmdName, false, cmdParam || null);
 }
 
-export default command;
+export const queryCommand = function(cmdName: string): boolean {
+  return document.queryCommandState(cmdName);
+}

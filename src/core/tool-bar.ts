@@ -1,7 +1,8 @@
 import $Z from '../domUtil/index';
+import { execCommand, queryCommand } from "./commands";
 
 interface TabItem { name: string, key: string };
-export interface ToolItem { name: string, key: string, handler: Function, active: boolean };
+export interface ToolItem { name: string, key: string, handler: Function, queryState: Function };
 interface Tab { tabList: Array<TabItem>, activeTab: TabItem, node?: any };
 interface Tool { base: Array<ToolItem | string>, insert: Array<ToolItem>, layout: Array<ToolItem> };
 interface ToolMap {
@@ -9,11 +10,11 @@ interface ToolMap {
 };
 
 const baseTools: ToolMap = {
-  "font-family": "字体",
+  "fontName": "字体",
   "bold": "加粗",
   "italic": "斜体",
   "underline": "下划线",
-  "deleteline": "删除线",
+  "strikeThrough": "删除线",
   "color": "字体颜色"
 };
 
@@ -84,12 +85,7 @@ export class ToolBar {
     this.tool.base = this.tool.base.map((tool: ToolItem | string): ToolItem => {
       let tempTool: ToolItem;
       if(typeof tool === "string") {
-        tempTool =  {
-          name: baseTools[tool],
-          key: tool,
-          handler: null,
-          active: false
-        };
+        tempTool =  { name: baseTools[tool], key: tool, handler: null, queryState: null };
       }
       else {
         tempTool =  tool;
@@ -112,20 +108,36 @@ export class ToolBar {
       let activeTab = this.el.querySelector(".tool-bar__tab-item.is-active");
       activeTab.className = activeTab.className.replace(/ is-active/g, "");
       target.className += " is-active";     
-    }
-    
+    }  
+  }
+
+  setToolState(tool: ToolItem, state: boolean) {
+    let $tool = this.el.querySelector(".zeditor-tool__item." + tool.key);
+    $tool.className = `zeditor-tool__item ${tool.key}${state ? ' is-active' : ''}`;
   }
 
   initToolItem(tool: ToolItem): HTMLElement {
-    if(tool.key === "font-family") { // 字体工具
-      return this.initFontFamily(tool);
+    let $item: HTMLElement;
+    switch(tool.key) {
+      case "fontName": // 字体工具初始化
+        $item = this.initFontFamily(tool);
+        break;      
+      case "foreColor": // 字体颜色工具初始化
+        break;
+      case "fontSize": // 字号工具初始化
+      default: // bold, italic, underline, strikeThrough
+        $item = this.initButton(tool);
     }
-    else {
-      return this.initButton(tool);
-    }    
+    return $item;
   }
 
   initButton(tool: ToolItem) {
+    if(!tool.handler) {
+      tool.handler = (evt?: UIEvent, ranges?: Array<Range>): boolean => execCommand(tool.key);
+    }
+    if(!tool.queryState) {
+      tool.queryState = (ranges?: Array<Range>) => queryCommand(tool.key);
+    }
     let $button: HTMLElement = document.createElement("div");
     $button.className = "zeditor-tool__item " + tool.key;
     $button.title = tool.name;
@@ -135,18 +147,33 @@ export class ToolBar {
   }
 
   initFontFamily(tool: ToolItem): HTMLElement {
+    let options: Array<{key: string, value: string}> = [
+      { key: "宋体, SimSun", value: "宋体" },
+      { key: "微软雅黑, 'Microsoft YaHei'", value: "微软雅黑" },
+      { key: "楷体, SimKai;", value: "楷体" },
+    ];
     let $select: HTMLElement = document.createElement("div");
     $select.className = "zeditor-tool__item " + tool.key;
-    $select.title = tool.name;
+    $select.innerHTML = `<input type="text" /><span class="icon"><i class="ze-icon-arrow--down"></i></span>${this.createPopper(options, 28, 300)}`;
+    let defaultValue = options[0];
+    let $input = $select.querySelector("input");
+    let $popper = $select.querySelector("ul");
+    $input && ($input.value = defaultValue.value);
+    $select.title = defaultValue.value; 
+    $Z($select).on("click", (evt: UIEvent, target: HTMLElement) => {
+      evt.stopPropagation();
+      $Z($popper).toggle();
+    });
     return $select;
   }
 
-
-
-
-
-
-
+  createPopper(options: Array<{key: string, value: string}>, top: number, maxH: number): string {
+    let tmpl: string = `<ul class="ze-popper__wrap" style="top: ${top}px;max-height: ${maxH}px;">`;
+    options.forEach(option => {
+      tmpl += `<li class="ze-popper__item" key=${option.key}>${option.value}</li>`;
+    });
+    return tmpl;
+  }
 
   eventBind(): void {
     let vm = this;

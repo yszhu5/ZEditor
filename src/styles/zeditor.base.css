@@ -47,10 +47,47 @@
   vertical-align: top;
 }
 
-.zeditor-tool__item.item--active,
+.zeditor-tool__item.is-active,
 .zeditor-tool__item:hover {
   background-color: #c6c6c6;
 }
+
+.zeditor-tool__item.fontName {
+  width: 124px;
+  position: relative;
+}
+
+.zeditor-tool__item.fontName input {
+  width: 100px;
+  height: 22px;
+  border: none;
+  outline: none;
+  vertical-align: top;
+  background-color: transparent;
+  color: #505050;
+  padding: 0 8px;
+  box-sizing: border-box;
+}
+
+.zeditor-tool__item.fontName .icon {
+  display: inline-block;
+  line-height: 24px;
+  height: 24px;
+  padding-top: 2px;
+  box-sizing: border-box;
+}
+
+.zeditor-tool__item.fontName.is-active,
+.zeditor-tool__item.fontName:hover {
+  background-color: inherit;
+}
+
+.zeditor-tool__item.fontName.is-active .icon,
+.zeditor-tool__item.fontName:hover .icon {
+  background-color: #c6c6c6;
+}
+
+
 
 .tool-bar__title {
   text-align: center;
@@ -70,9 +107,6 @@
   box-sizing: border-box;
   margin-top: 8px;
 }
-
-
-
 /* 编辑器主体部分样式结束 */
 
 [class*=" ze-icon-"], [class^=ze-icon-] {
@@ -83,7 +117,7 @@
   font-size: 16px;
   font-style: normal;
   background-repeat: no-repeat;
-  background-size: contain;
+  background-position: center;
 }
 
 .ze-icon-bold:after {
@@ -103,9 +137,30 @@
   vertical-align: top;
 }
 
-.ze-icon-deleteline:after {
+.ze-icon-strikeThrough:after {
   content: 'S';
   text-decoration: line-through;
+}
+
+.ze-icon-arrow--down {
+  background-image: url(../images/icon-arrow-b.png);
+}
+
+.ze-popper__wrap {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  max-height: 300px;
+  overflow: hidden auto;
+  display: none;
+  z-index: 10;
+  background-color: #f3f3f3;
+  margin: 0;
+  padding: 8px;
+  box-sizing: border-box;
+  text-align: left;
+  list-style: none;
+  font-size: 12px;
 }
 
 

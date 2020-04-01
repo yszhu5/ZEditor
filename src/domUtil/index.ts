@@ -1,6 +1,5 @@
 const domUtilEventList = new Map();
-let domUtilGuid: number = 0;
-
+const windowEvent: Array<EventHandler> = [];
 interface EvtItem {
   evtName: string,
   selector: string,
@@ -61,8 +60,6 @@ class DomUtil {
         addEvent.bind(item)(event, function handler(evt: Event): void {
           let target = (getTarget(item, evt.target, selector) as HTMLElement);
           if(target) {
-            !item.guid && (item.guid = "DOM_UTIL_GUID" + domUtilGuid++);
-            !target.selectorGuid && (target.selectorGuid = item.guid + "&" + selector);
             callback && callback(evt, target);
             let evtItem: EvtItem = {
               evtName: event,
@@ -97,7 +94,6 @@ class DomUtil {
     for(let item of this) {
       let evtList = domUtilEventList.get(item);
       let nodes: NodeList | Array<HTMLElement> = selector ? item.querySelectorAll(selector) : [item];
-      let guids: Array<string> = [];
       evtList.filter((evtItem: EvtItem) => {
         let callMatch: boolean = callback ? (callback === evtItem.call) : true;
         let evtMath: boolean = (event === evtItem.evtName);
@@ -112,9 +108,26 @@ class DomUtil {
       });
     }
     return this;
+  };
+  // 显示或隐藏
+  toggle(state?: boolean) {
+    for(let item of this) {
+      if(item) {
+        let flag: boolean = false;
+        if(item.style.display && item.style.display === "none") {
+          item.style.display = "";
+          flag = true;
+        }        
+        let cssDisPlay: string = getComputedStyle(item).getPropertyValue("display");
+        if(cssDisPlay === "none") {
+          cssDisPlay = "block";
+          flag = true;
+        }
+        typeof state !== "undefined" && (flag = state); 
+        item.style.display = flag ? cssDisPlay : "none";
+      }
+    }
   }
-
-  
 };
 
 // 事件绑定
@@ -152,12 +165,18 @@ function getTarget(parent: HTMLElement, child: any, selector?: string): HTMLElem
   return target;
 };
 
+// window对象添加resize事件
+function onResize(handler: EventHandler) {
+  addEvent.bind(window)("resize", handler);
+  windowEvent.push(handler);
+}
+
 const $Z = function(selector: any): DomUtil {
   return new DomUtil(selector);
 }
 
 // 静态方法
 $Z.getTarget = getTarget;
-
+$Z.onResize = onResize;
 
 export default $Z;
