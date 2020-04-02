@@ -1,3 +1,6 @@
+import { fontSizeOptions } from "./tool-bar";
+
+// 获取Range覆盖的所有node节点
 const getAllNodes = function(range: Range, callback?: Function): Array<Node> {
   let nodeList: Array<Node> = [];
   if(!range.collapsed) {
@@ -32,6 +35,7 @@ const getAllNodes = function(range: Range, callback?: Function): Array<Node> {
   return nodeList;
 }
 
+// 获取Node节点的所有叶子节点集合
 const getAllLeafNodes = function(node: Node, list?: Array<Node>): Array<Node> {
   !list && (list = []);
   let len = node.childNodes.length;
@@ -46,6 +50,7 @@ const getAllLeafNodes = function(node: Node, list?: Array<Node>): Array<Node> {
   return list;
 }
 
+// 计算当前选区的字体
 const queryFontName = function(): { fontName: string, fontNameList: Array<string> } {
   let fontName: string;
   let fontNameList: Array<string> = [];
@@ -70,8 +75,29 @@ const queryFontName = function(): { fontName: string, fontNameList: Array<string
   return { fontName, fontNameList };
 }
 
+// 设置当前选区的字号
+const setFontSize = function(fontSize: string): boolean {
+  if(!fontSize) {
+    return false;
+  }
+  let selection = window.getSelection();
+  for(let i=0; i<selection.rangeCount; i++) {
+    let range = selection.getRangeAt(i);
+    console.log(getAllNodes(range));
+  }
+  
+}
+
 export const execCommand = function(cmdName: string, cmdParam?: string): boolean {
-  return document.execCommand(cmdName, false, cmdParam || null);
+  let result: boolean;
+  switch(cmdName) {
+    case "fontSize": 
+      result = setFontSize(cmdParam);
+      break;    
+    default: 
+      result = document.execCommand(cmdName, false, cmdParam || null);
+  }
+  return result;
 }
 
 export const queryCommand = function(cmdName: string): boolean | string {
@@ -82,7 +108,6 @@ export const queryCommand = function(cmdName: string): boolean | string {
       break;    
     default: 
       result = document.queryCommandState(cmdName);
-      break;
   }
   return result;
 }

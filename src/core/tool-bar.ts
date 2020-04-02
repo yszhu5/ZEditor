@@ -8,10 +8,11 @@ interface Tool { base: Array<ToolItem | string>, insert: Array<ToolItem>, layout
 interface ToolMap {
   [index: string]: string
 };
-interface OptionItem { key: string, value: string };
+interface OptionItem { key: string, value: string, default?: boolean };
 
 const baseTools: ToolMap = {
   "fontName": "字体",
+  "fontSize": "字号",
   "bold": "加粗",
   "italic": "斜体",
   "underline": "下划线",
@@ -20,9 +21,29 @@ const baseTools: ToolMap = {
 };
 
 export const fontOptions: Array<OptionItem> = [
-  { key: `微软雅黑, "Microsoft YaHei"`, value: "微软雅黑" },
+  { key: `微软雅黑, "Microsoft YaHei"`, value: "微软雅黑", default: true },
   { key: `宋体, SimSun`, value: "宋体" },  
   { key: "KaiTi", value: "楷体" }
+];
+
+export const fontSizeOptions: Array<OptionItem> = [
+  { key: "42pt", value: "初号" },
+  { key: "36pt", value: "小初" },
+  { key: "28pt", value: "一号" },
+  { key: "24pt", value: "小一" },
+  { key: "22pt", value: "二号" },
+  { key: "18pt", value: "小二" },
+  { key: "16pt", value: "三号" },
+  { key: "15pt", value: "小三" },
+  { key: "14pt", value: "四号" },
+  { key: "12pt", value: "小四", default: true },
+  { key: "11pt", value: "五号" },
+  { key: "9pt", value: "小五" },
+  { key: "8pt", value: "六号" },
+  { key: "7pt", value: "小六" },
+  { key: "6pt", value: "七号" },
+  { key: "7pt", value: "小六" },
+  { key: "5pt", value: "八号" }
 ];
 
 export class ToolBar {
@@ -104,17 +125,12 @@ export class ToolBar {
     $baseTool.appendChild(fragment);
   }
 
-  destoryTool(): void {
-
-  }
-
   setActiveTab(evt: UIEvent, target: HTMLElement ) {
     let key: string =  target.getAttribute("key");
     if(this.tab.activeTab.key !== key) {
       this.tab.activeTab = this.tab.tabList.find(tab => tab.key === key);
-      let activeTab = this.el.querySelector(".tool-bar__tab-item.is-active");
-      activeTab.className = activeTab.className.replace(/ is-active/g, "");
-      target.className += " is-active";     
+      $Z(".zditor__wrap .tool-bar__tab-item").toggleClass("is-active", false);
+      $Z(target).toggleClass("is-active", true);
     }  
   }
 
@@ -129,11 +145,14 @@ export class ToolBar {
     switch(tool.key) {
       case "fontName": // 字体工具初始化
         tool.setState = setFontName.bind(tool);
-        $item = this.initFontFamily(tool);
+        $item = this.initFontSelect(tool, fontOptions);
         break;      
       case "foreColor": // 字体颜色工具初始化
         break;
       case "fontSize": // 字号工具初始化
+        tool.setState = setFontSize.bind(tool);
+        $item = this.initFontSelect(tool, fontSizeOptions);
+        break;
       default: // bold, italic, underline, strikeThrough
         tool.setState = setButtonActive.bind(tool);
         $item = this.initButton(tool);
@@ -152,24 +171,36 @@ export class ToolBar {
     return $button;
   }
 
-  initFontFamily(tool: ToolItem): HTMLElement {
+  initFontSelect(tool: ToolItem, options: Array<OptionItem>): HTMLElement { // 初始化字体下拉选择工具（fontName & fontSize）
     let $select: HTMLElement = document.createElement("div");
     $select.className = "zeditor-tool__item " + tool.key;
     $select.innerHTML = `<input type="text" class="select-input" /><span class="icon"><i class="ze-icon-arrow--down"></i></span>`;
-    setSelectValue($select, fontOptions);
+    setSelectValue($select, options);
     // 创建弹出层
-    let $popper = this.createPopper(fontOptions, { top: 28, height: 300 }, (evt?: UIEvent, option?: OptionItem) => {
-      setSelectValue($select, fontOptions, option);
+    let $popper = this.createPopper(options, { top: 28, height: 300 }, (evt?: UIEvent, option?: OptionItem) => {
+      setSelectValue($select, options, option);
       this.onCommand(evt, tool, option.key); 
     });
     $select.appendChild($popper);
-    let vm = $Z($select); // 下拉框事件绑定
+    // 下拉框事件绑定
+    let vm = $Z($select);
     vm.on("click", (evt: UIEvent, target: HTMLElement) => {
       evt.stopPropagation();
       vm.toggleClass("show");
     });
     $Z(document.body).on("click", (evt: UIEvent, target: HTMLElement) => { // 点击空白处关闭下拉框
       vm.toggleClass("show", false);
+    });
+    return $select;
+  }
+
+  initFontSize(tool: ToolItem): HTMLElement { // 初始化字号选择工具
+    let $select: HTMLElement = document.createElement("div");
+    $select.className = "zeditor-tool__item " + tool.key;
+    $select.innerHTML = `<input type="text" class="select-input" /><span class="icon"><i class="ze-icon-arrow--down"></i></span>`;
+    this.createPopper(fontSizeOptions, { top: 28, height: 300 }, (evt?: UIEvent, option?: OptionItem) => {
+      setSelectValue($select, fontOptions, option);
+      this.onCommand(evt, tool, option.key); 
     });
     return $select;
   }
@@ -210,6 +241,10 @@ function setFontName(this: ToolItem) {
     let fontName: string = this.queryState();
     setSelectValue(this.elm, fontOptions, fontName);
   }
+}
+
+function setFontSize(this: ToolItem) {
+
 }
 
 function setSelectValue(select: HTMLElement, options: Array<OptionItem>, option?: OptionItem | string) {

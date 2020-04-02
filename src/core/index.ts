@@ -1,4 +1,4 @@
-import { ToolItem, ToolBar, fontOptions } from "./tool-bar";
+import { ToolItem, ToolBar, fontOptions, fontSizeOptions } from "./tool-bar";
 import $Z from '../domUtil/index';
 import { execCommand, queryCommand } from "./commands";
 
@@ -19,7 +19,7 @@ export default class ZEditor {
     this.init();
   }
 
-  initToolBar() {
+  private initToolBar() {
     this.toolBar = new ToolBar({
       el: this.el,
       tools: this.tools,
@@ -27,14 +27,14 @@ export default class ZEditor {
     });
   }
 
-  initBody() {
+  private initBody() {
     this.$toolBar = this.el.querySelector(".tool-bar__wrap");
     if(this.$toolBar) {
       this.$body = document.createElement("div");
       this.$body.className = "editor-body__wrap";
-      this.$body.contentEditable = "true";
-      fontOptions[0] && (this.$body.style.fontFamily = fontOptions[0].key);
-      this.calcBodyHeight();
+      this.$body.contentEditable = "true";      
+      this.setDeafultStyle();
+      this.calcBodyHeight(); 
       this.el.appendChild(this.$body);
       this.focus();
     }
@@ -43,18 +43,25 @@ export default class ZEditor {
     }
   }
 
+  setDeafultStyle() {  // 设置编辑区默认格式
+    let defaultFontName = fontOptions.find(option => option.default);
+    this.$body.style.fontFamily = defaultFontName.key;
+    let defaultFontSize = fontSizeOptions.find(option => option.default);
+    this.$body.style.fontSize = defaultFontSize.key;
+  }
+
   focus() { // 编辑器聚焦
     this.$body.focus();
     this.getSelection();
   }
 
-  calcBodyHeight() {
+  calcBodyHeight() { // 动态计算编辑区高度
     let top = this.$toolBar.clientHeight;
     let height = this.el.clientHeight;
     this.$body.style.height = Math.floor(height - top - 8) + "px";
   }
 
-  init() {
+  private init() { // 编辑器初始化
     this.el.style.position = "relative";
     this.el.className += " zditor__wrap";
     this.initToolBar();
@@ -62,7 +69,7 @@ export default class ZEditor {
     this.eventBind();
   }
 
-  toolCommand(evt: UIEvent, tool: ToolItem, cmdName?: string) { // 工具栏点击事件回调
+  private toolCommand(evt: UIEvent, tool: ToolItem, cmdName?: string) { // 工具栏点击事件回调
     let selection = window.getSelection();
     selection.removeAllRanges();
     this.ranges.forEach(range => {
@@ -84,13 +91,13 @@ export default class ZEditor {
     }      
   }
 
-  execCommand(cmdName: string, cmdParam?: string, ranges?: Array<Range>) { // 执行command命令
+  execCommand(cmdName: string, cmdParam?: string, ranges?: Array<Range>) { // 对外接口，执行command命令
     ranges && (this.ranges = ranges);
     this.getSelection();
     execCommand(cmdName, cmdParam);
   }
 
-  queryCommand(cmdName: string, ranges?: Array<Range>, ) { // 查询command状态
+  queryCommand(cmdName: string, ranges?: Array<Range>, ) { // 对外接口，查询command状态
     ranges && (this.ranges = ranges);
     this.getSelection();
     return queryCommand(cmdName);
@@ -109,7 +116,7 @@ export default class ZEditor {
     }
   }
 
-  eventBind() {
+  private eventBind() { // 编辑器初始化事件绑定
     let vm = this;
     vm.getSelection = vm.getSelection.bind(vm);
     vm.calcBodyHeight = vm.calcBodyHeight.bind(vm);
