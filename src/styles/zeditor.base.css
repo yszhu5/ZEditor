@@ -53,12 +53,12 @@
 }
 
 .zeditor-tool__item.fontName {
-  width: 124px;
+  width: 100px;
   position: relative;
 }
 
 .zeditor-tool__item.fontName input {
-  width: 100px;
+  width: 80px;
   height: 22px;
   border: none;
   outline: none;
@@ -69,6 +69,14 @@
   box-sizing: border-box;
 }
 
+.zeditor-tool__item.fontName.show {
+  background-color: #c6c6c6;
+}
+
+.zeditor-tool__item.fontName.show .ze-popper__wrap {
+  display: block;
+}
+
 .zeditor-tool__item.fontName .icon {
   display: inline-block;
   line-height: 24px;
@@ -76,17 +84,6 @@
   padding-top: 2px;
   box-sizing: border-box;
 }
-
-.zeditor-tool__item.fontName.is-active,
-.zeditor-tool__item.fontName:hover {
-  background-color: inherit;
-}
-
-.zeditor-tool__item.fontName.is-active .icon,
-.zeditor-tool__item.fontName:hover .icon {
-  background-color: #c6c6c6;
-}
-
 
 
 .tool-bar__title {
@@ -154,13 +151,14 @@
   overflow: hidden auto;
   display: none;
   z-index: 10;
-  background-color: #f3f3f3;
+  background-color: #fff;
   margin: 0;
   padding: 8px;
   box-sizing: border-box;
   text-align: left;
   list-style: none;
   font-size: 12px;
+  box-shadow: 1px 2px 3px 1px #ccc;
 }
 
 

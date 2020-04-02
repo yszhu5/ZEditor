@@ -1,4 +1,4 @@
-import { ToolItem, ToolBar } from "./tool-bar";
+import { ToolItem, ToolBar, fontOptions } from "./tool-bar";
 import $Z from '../domUtil/index';
 import { execCommand, queryCommand } from "./commands";
 
@@ -33,12 +33,19 @@ export default class ZEditor {
       this.$body = document.createElement("div");
       this.$body.className = "editor-body__wrap";
       this.$body.contentEditable = "true";
+      fontOptions[0] && (this.$body.style.fontFamily = fontOptions[0].key);
       this.calcBodyHeight();
       this.el.appendChild(this.$body);
+      this.focus();
     }
     else {
       console.error("init toolBar failed!");
     }
+  }
+
+  focus() { // 编辑器聚焦
+    this.$body.focus();
+    this.getSelection();
   }
 
   calcBodyHeight() {
@@ -55,13 +62,13 @@ export default class ZEditor {
     this.eventBind();
   }
 
-  toolCommand(evt: UIEvent, tool: ToolItem) { // 工具栏点击事件回调
+  toolCommand(evt: UIEvent, tool: ToolItem, cmdName?: string) { // 工具栏点击事件回调
     let selection = window.getSelection();
     selection.removeAllRanges();
     this.ranges.forEach(range => {
       selection.addRange(range);
     });
-    tool.handler(evt, this.ranges);
+    tool.handler(evt, this.ranges, cmdName);
     this.getSelection();
   }
 
@@ -73,7 +80,7 @@ export default class ZEditor {
     }   
     let baseTool: Array<ToolItem> = this.toolBar.tool.base as Array<ToolItem>; // 每次保存选区时检测工具栏状态
     for(let j=0,len=baseTool.length; j<len; j++) {
-      baseTool[j].queryState && this.toolBar.setToolState(baseTool[j], baseTool[j].queryState(this.ranges));
+      baseTool[j].setState && baseTool[j].setState();
     }      
   }
 

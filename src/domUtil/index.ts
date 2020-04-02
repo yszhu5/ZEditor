@@ -110,7 +110,7 @@ class DomUtil {
     return this;
   };
   // 显示或隐藏
-  toggle(state?: boolean) {
+  toggle(state?: boolean): DomUtil {
     for(let item of this) {
       if(item) {
         let flag: boolean = false;
@@ -127,6 +127,27 @@ class DomUtil {
         item.style.display = flag ? cssDisPlay : "none";
       }
     }
+    return this;
+  };
+  // class 样式的切换
+  toggleClass(tempClass: string, state?: boolean): DomUtil {
+    for(let item of this) {
+      if(item) {
+        if(typeof state === "undefined") {
+          state = !(item.className.indexOf(tempClass) >= 0);
+        }
+        if(state) {
+          item.className += ` ${tempClass}`;
+        }
+        else {  
+          let classList = item.className.split(" ");
+          let index = classList.indexOf(tempClass);
+          index >= 0 && classList.splice(index, 1);
+          item.className = classList.join(" ");
+        }
+      }
+    }
+    return this;
   }
 };
 

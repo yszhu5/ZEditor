@@ -2,12 +2,13 @@ import $Z from '../domUtil/index';
 import { execCommand, queryCommand } from "./commands";
 
 interface TabItem { name: string, key: string };
-export interface ToolItem { name: string, key: string, handler: Function, queryState: Function };
+export interface ToolItem { name: string, key: string, handler: Function, queryState: Function, setState: Function, elm: HTMLElement };
 interface Tab { tabList: Array<TabItem>, activeTab: TabItem, node?: any };
 interface Tool { base: Array<ToolItem | string>, insert: Array<ToolItem>, layout: Array<ToolItem> };
 interface ToolMap {
   [index: string]: string
 };
+interface OptionItem { key: string, value: string };
 
 const baseTools: ToolMap = {
   "fontName": "字体",
@@ -17,6 +18,12 @@ const baseTools: ToolMap = {
   "strikeThrough": "删除线",
   "color": "字体颜色"
 };
+
+export const fontOptions: Array<OptionItem> = [
+  { key: `微软雅黑, "Microsoft YaHei"`, value: "微软雅黑" },
+  { key: `宋体, SimSun`, value: "宋体" },  
+  { key: "KaiTi", value: "楷体" }
+];
 
 export class ToolBar {
   el: any
@@ -85,7 +92,7 @@ export class ToolBar {
     this.tool.base = this.tool.base.map((tool: ToolItem | string): ToolItem => {
       let tempTool: ToolItem;
       if(typeof tool === "string") {
-        tempTool =  { name: baseTools[tool], key: tool, handler: null, queryState: null };
+        tempTool =  { name: baseTools[tool], key: tool, handler: null, queryState: null, setState: null, elm: null };
       }
       else {
         tempTool =  tool;
@@ -111,33 +118,32 @@ export class ToolBar {
     }  
   }
 
-  setToolState(tool: ToolItem, state: boolean) {
-    let $tool = this.el.querySelector(".zeditor-tool__item." + tool.key);
-    $tool.className = `zeditor-tool__item ${tool.key}${state ? ' is-active' : ''}`;
-  }
-
   initToolItem(tool: ToolItem): HTMLElement {
+    if(!tool.handler) { // 指定默认的handler方法
+      tool.handler = (evt?: UIEvent, ranges?: Array<Range>, cmdParam?: string): boolean => execCommand(tool.key, cmdParam);
+    }
+    if(!tool.queryState) { // 指定默认的queryState方法
+      tool.queryState = (ranges?: Array<Range>): boolean | string => queryCommand(tool.key);
+    }
     let $item: HTMLElement;
     switch(tool.key) {
       case "fontName": // 字体工具初始化
+        tool.setState = setFontName.bind(tool);
         $item = this.initFontFamily(tool);
         break;      
       case "foreColor": // 字体颜色工具初始化
         break;
       case "fontSize": // 字号工具初始化
       default: // bold, italic, underline, strikeThrough
+        tool.setState = setButtonActive.bind(tool);
         $item = this.initButton(tool);
+        break;
     }
+    tool.elm = $item;
     return $item;
   }
 
   initButton(tool: ToolItem) {
-    if(!tool.handler) {
-      tool.handler = (evt?: UIEvent, ranges?: Array<Range>): boolean => execCommand(tool.key);
-    }
-    if(!tool.queryState) {
-      tool.queryState = (ranges?: Array<Range>) => queryCommand(tool.key);
-    }
     let $button: HTMLElement = document.createElement("div");
     $button.className = "zeditor-tool__item " + tool.key;
     $button.title = tool.name;
@@ -147,32 +153,43 @@ export class ToolBar {
   }
 
   initFontFamily(tool: ToolItem): HTMLElement {
-    let options: Array<{key: string, value: string}> = [
-      { key: "宋体, SimSun", value: "宋体" },
-      { key: "微软雅黑, 'Microsoft YaHei'", value: "微软雅黑" },
-      { key: "楷体, SimKai;", value: "楷体" },
-    ];
     let $select: HTMLElement = document.createElement("div");
     $select.className = "zeditor-tool__item " + tool.key;
-    $select.innerHTML = `<input type="text" /><span class="icon"><i class="ze-icon-arrow--down"></i></span>${this.createPopper(options, 28, 300)}`;
-    let defaultValue = options[0];
-    let $input = $select.querySelector("input");
-    let $popper = $select.querySelector("ul");
-    $input && ($input.value = defaultValue.value);
-    $select.title = defaultValue.value; 
-    $Z($select).on("click", (evt: UIEvent, target: HTMLElement) => {
+    $select.innerHTML = `<input type="text" class="select-input" /><span class="icon"><i class="ze-icon-arrow--down"></i></span>`;
+    setSelectValue($select, fontOptions);
+    // 创建弹出层
+    let $popper = this.createPopper(fontOptions, { top: 28, height: 300 }, (evt?: UIEvent, option?: OptionItem) => {
+      setSelectValue($select, fontOptions, option);
+      this.onCommand(evt, tool, option.key); 
+    });
+    $select.appendChild($popper);
+    let vm = $Z($select); // 下拉框事件绑定
+    vm.on("click", (evt: UIEvent, target: HTMLElement) => {
       evt.stopPropagation();
-      $Z($popper).toggle();
+      vm.toggleClass("show");
+    });
+    $Z(document.body).on("click", (evt: UIEvent, target: HTMLElement) => { // 点击空白处关闭下拉框
+      vm.toggleClass("show", false);
     });
     return $select;
   }
 
-  createPopper(options: Array<{key: string, value: string}>, top: number, maxH: number): string {
-    let tmpl: string = `<ul class="ze-popper__wrap" style="top: ${top}px;max-height: ${maxH}px;">`;
+  createPopper(options: Array<OptionItem>, { top, width, height }: { top?: number, width?: number, height?: number}, change: Function): HTMLElement {
+    let $ul = document.createElement("ul");
+    $ul.className = "ze-popper__wrap";
+    top && ($ul.style.top = top + "px");
+    width && ($ul.style.width = width + "px");
+    height && ($ul.style.maxHeight = height + "px");
     options.forEach(option => {
-      tmpl += `<li class="ze-popper__item" key=${option.key}>${option.value}</li>`;
+      let $li = document.createElement("li");
+      $li.className = "ze-popper__item";
+      $li.innerText = option.value;
+      $li.onclick = evt => {
+        change && change(evt, option);
+      };
+      $ul.appendChild($li);
     });
-    return tmpl;
+    return $ul;
   }
 
   eventBind(): void {
@@ -180,6 +197,30 @@ export class ToolBar {
     vm.setActiveTab = this.setActiveTab.bind(vm);
     $Z(this.el).on("click", ".tool-bar__tab-item", vm.setActiveTab);
   }
+}
+
+function setButtonActive(this: ToolItem) {
+  if(this.queryState) {
+    this.elm.className = `zeditor-tool__item ${this.key}${this.queryState() ? ' is-active' : ''}`;
+  }  
+}
+
+function setFontName(this: ToolItem) {
+  if(this.queryState) {
+    let fontName: string = this.queryState();
+    setSelectValue(this.elm, fontOptions, fontName);
+  }
+}
+
+function setSelectValue(select: HTMLElement, options: Array<OptionItem>, option?: OptionItem | string) {
+  let value: string = "";
+  let $input: HTMLInputElement  = select.querySelector("input.select-input");
+  if(typeof option === "string") {
+    option = options.find(item => item.key === option);
+  }
+  option && (value = option.value); 
+  $input && ($input.value = value);
+  select.title = value;
 }
 
 export default ToolBar;
