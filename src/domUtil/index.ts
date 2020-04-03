@@ -29,7 +29,7 @@ class DomUtil {
     });
     // 添加length属性
     this.length = nodes.length;
-    nodes = null;    
+    nodes = null;
   }
   // 添加iterable迭代器属性
   private [Symbol.iterator]() {

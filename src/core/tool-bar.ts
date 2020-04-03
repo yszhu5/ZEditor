@@ -22,8 +22,15 @@ const baseTools: ToolMap = {
 
 export const fontOptions: Array<OptionItem> = [
   { key: `微软雅黑, "Microsoft YaHei"`, value: "微软雅黑", default: true },
-  { key: `宋体, SimSun`, value: "宋体" },  
-  { key: "KaiTi", value: "楷体" }
+  { key: `宋体, SimSun`, value: "宋体" },
+  { key: "FangSong", value: "仿宋" },
+  { key: "FangSong_GB2312", value: "仿宋GB_2312" },
+  { key: "YouYuan", value: "幼圆" },
+  { key: "KaiTi", value: "楷体" },
+  { key: "黑体, SimHei", value: "黑体" },
+  { key: "隶书, SimLi", value: "隶书" },
+  { key: "arial", value: "arial" } 
+   
 ];
 
 export const fontSizeOptions: Array<OptionItem> = [
@@ -36,8 +43,8 @@ export const fontSizeOptions: Array<OptionItem> = [
   { key: "16pt", value: "三号" },
   { key: "15pt", value: "小三" },
   { key: "14pt", value: "四号" },
-  { key: "12pt", value: "小四", default: true },
-  { key: "11pt", value: "五号" },
+  { key: "12pt", value: "小四"},
+  { key: "11pt", value: "五号", default: true },
   { key: "9pt", value: "小五" },
   { key: "8pt", value: "六号" },
   { key: "7pt", value: "小六" },
