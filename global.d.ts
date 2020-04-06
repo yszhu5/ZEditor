@@ -1,4 +1,7 @@
-declare interface Element {
+declare interface HTMLElement {
+  style: {
+    [index: string]: string
+  },
   guid?: string,
   selectorGuid?: string,
   attachEvent?: Function,

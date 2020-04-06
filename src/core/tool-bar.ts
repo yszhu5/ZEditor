@@ -17,7 +17,8 @@ const baseTools: ToolMap = {
   "italic": "斜体",
   "underline": "下划线",
   "strikeThrough": "删除线",
-  "color": "字体颜色"
+  "foreColor": "字体颜色",
+  "hiliteColor": "突出显示"
 };
 
 export const fontOptions: Array<OptionItem> = [
@@ -29,8 +30,7 @@ export const fontOptions: Array<OptionItem> = [
   { key: "KaiTi", value: "楷体" },
   { key: "黑体, SimHei", value: "黑体" },
   { key: "隶书, SimLi", value: "隶书" },
-  { key: "arial", value: "arial" } 
-   
+  { key: "arial", value: "arial" }   
 ];
 
 export const fontSizeOptions: Array<OptionItem> = [
@@ -52,6 +52,89 @@ export const fontSizeOptions: Array<OptionItem> = [
   { key: "7pt", value: "小六" },
   { key: "5pt", value: "八号" }
 ];
+
+export const colorOptions: Array<OptionItem> = [
+  { key: "255, 255, 255", value: ""},
+  { key: "0, 0, 0", value: ""},
+  { key: "231, 230, 230", value: ""},
+  { key: "68, 84, 106", value: ""},
+  { key: "91, 155, 213", value: ""},
+  { key: "237, 125, 49", value: ""},
+  { key: "165, 165, 165", value: ""},
+  { key: "255, 192, 0", value: ""},
+  { key: "68, 114, 196", value: ""},
+  { key: "112, 173, 71", value: ""},
+
+  { key: "242, 242, 242", value: ""},
+  { key: "128, 128, 128", value: ""},
+  { key: "208, 206, 206", value: ""},
+  { key: "214, 220, 229", value: ""},
+  { key: "222, 235, 247", value: ""},
+  { key: "251, 229, 214", value: ""},
+  { key: "237, 237, 237", value: ""},
+  { key: "255, 242, 204", value: ""},
+  { key: "218, 227, 243", value: ""},
+  { key: "226, 240, 217", value: ""},
+
+
+  { key: "217, 217, 217", value: ""},
+  { key: "89, 89, 89", value: ""},
+  { key: "175, 171, 171", value: ""},
+  { key: "173, 185, 202", value: ""},
+  { key: "189, 215, 238", value: ""},
+  { key: "248, 203, 173", value: ""},
+  { key: "219, 219, 219", value: ""},
+  { key: "255, 230, 153", value: ""},
+  { key: "180, 199, 231", value: ""},
+  { key: "197, 224, 180", value: ""},
+
+  { key: "191, 191, 191", value: ""},
+  { key: "64, 64, 64", value: ""},
+  { key: "118, 113, 113", value: ""},
+  { key: "132, 151, 176", value: ""},
+  { key: "157, 195, 230", value: ""},
+  { key: "244, 177, 131", value: ""},
+  { key: "201, 201, 201", value: ""},
+  { key: "255, 217, 102", value: ""},
+  { key: "143, 170, 220", value: ""},
+  { key: "169, 209, 142", value: ""},
+
+  { key: "166, 166, 166", value: ""},
+  { key: "38, 38, 38", value: ""},
+  { key: "59, 56, 56", value: ""},
+  { key: "51, 63, 80", value: ""},
+  { key: "46, 117, 182", value: ""},
+  { key: "197, 90, 17", value: ""},
+  { key: "124, 124, 124", value: ""},
+  { key: "191, 144, 0", value: ""},
+  { key: "47, 85, 151", value: ""},
+  { key: "84, 130, 53", value: ""},
+
+  { key: "127, 127, 127", value: ""},
+  { key: "13, 13, 13", value: ""},
+  { key: "24, 23, 23", value: ""},
+  { key: "34, 42, 53", value: ""},
+  { key: "31, 78, 121", value: ""},
+  { key: "132, 60, 11", value: ""},
+  { key: "83, 83, 83", value: ""},
+  { key: "127, 96, 0", value: ""},
+  { key: "32, 56, 100", value: ""},
+  { key: "56, 87, 35", value: ""}
+
+];
+
+export const standerColors: Array<OptionItem> = [
+  { key: "192, 0, 0", value: ""},
+  { key: "255, 0, 0", value: ""},
+  { key: "255, 192, 0", value: ""},
+  { key: "255, 255, 0", value: ""},
+  { key: "146, 208, 80", value: ""},
+  { key: "0, 176, 80", value: ""},
+  { key: "0, 176, 240", value: ""},
+  { key: "0, 112, 192", value: ""},
+  { key: "0, 32, 96", value: ""},
+  { key: "112, 48, 160", value: ""}
+]
 
 export class ToolBar {
   el: any
@@ -146,22 +229,26 @@ export class ToolBar {
       tool.handler = (evt?: UIEvent, ranges?: Array<Range>, cmdParam?: string): boolean => execCommand(tool.key, cmdParam);
     }
     if(!tool.queryState) { // 指定默认的queryState方法
-      tool.queryState = (ranges?: Array<Range>): boolean | string => queryCommand(tool.key);
+      tool.queryState = (ranges?: Array<Range>): boolean | Array<string> => queryCommand(tool.key);
     }
     let $item: HTMLElement;
     switch(tool.key) {
       case "fontName": // 字体工具初始化
-        tool.setState = setFontName.bind(tool);
-        $item = this.initFontSelect(tool, fontOptions);
+        tool.setState = selectFontName.bind(tool);
+        $item = this.initFontSelect(tool, fontOptions, { width: 100 });
         break;      
       case "foreColor": // 字体颜色工具初始化
+        $item = this.initColorPicker(tool);
+        break;
+      case "hiliteColor": // 背景色突出显示
+        $item = this.initColorPicker(tool);
         break;
       case "fontSize": // 字号工具初始化
-        tool.setState = setFontSize.bind(tool);
-        $item = this.initFontSelect(tool, fontSizeOptions);
+        tool.setState = selectFontSize.bind(tool);
+        $item = this.initFontSelect(tool, fontSizeOptions, {});
         break;
       default: // bold, italic, underline, strikeThrough
-        tool.setState = setButtonActive.bind(tool);
+        tool.setState = setButtonActive.bind(tool);  
         $item = this.initButton(tool);
         break;
     }
@@ -169,7 +256,8 @@ export class ToolBar {
     return $item;
   }
 
-  initButton(tool: ToolItem) {
+  // 初始化工具栏按钮 (bold italic underline strikeThrough)
+  initButton(tool: ToolItem): HTMLElement {
     let $button: HTMLElement = document.createElement("div");
     $button.className = "zeditor-tool__item " + tool.key;
     $button.title = tool.name;
@@ -178,13 +266,18 @@ export class ToolBar {
     return $button;
   }
 
-  initFontSelect(tool: ToolItem, options: Array<OptionItem>): HTMLElement { // 初始化字体下拉选择工具（fontName & fontSize）
+  // 初始化字体下拉选择工具（fontName & fontSize）
+  initFontSelect(
+    tool: ToolItem,
+    options: Array<OptionItem>,
+    { top=28, height=300, width }: { top?: number, width?: number, height?: number}
+  ): HTMLElement {
     let $select: HTMLElement = document.createElement("div");
-    $select.className = "zeditor-tool__item " + tool.key;
-    $select.innerHTML = `<input type="text" class="select-input" /><span class="icon"><i class="ze-icon-arrow--down"></i></span>`;
+    $select.className = `zeditor-tool__item ${tool.key} dropdown`;
+    $select.innerHTML = `<input type="text" class="select-input" />`;
     setSelectValue($select, options);
     // 创建弹出层
-    let $popper = this.createPopper(options, { top: 28, height: 300 }, (evt?: UIEvent, option?: OptionItem) => {
+    let $popper = this.createPopper(options, { top, height, width }, (evt?: UIEvent, option?: OptionItem) => {
       setSelectValue($select, options, option);
       this.onCommand(evt, tool, option.key); 
     });
@@ -201,15 +294,12 @@ export class ToolBar {
     return $select;
   }
 
-  initFontSize(tool: ToolItem): HTMLElement { // 初始化字号选择工具
-    let $select: HTMLElement = document.createElement("div");
-    $select.className = "zeditor-tool__item " + tool.key;
-    $select.innerHTML = `<input type="text" class="select-input" /><span class="icon"><i class="ze-icon-arrow--down"></i></span>`;
-    this.createPopper(fontSizeOptions, { top: 28, height: 300 }, (evt?: UIEvent, option?: OptionItem) => {
-      setSelectValue($select, fontOptions, option);
-      this.onCommand(evt, tool, option.key); 
-    });
-    return $select;
+  // 初始化颜色选择工具( forceColor & hiliteColor)
+  initColorPicker(tool: ToolItem): HTMLElement {
+    let $picker: HTMLElement = document.createElement("div");
+    $picker.className = `zeditor-tool__item ${tool.key} dropdown`;
+    $picker.innerHTML = `<i class="ze-icon-${tool.key}"></i><span class="color-block"></span></span>`;
+    return $picker;
   }
 
   createPopper(options: Array<OptionItem>, { top, width, height }: { top?: number, width?: number, height?: number}, change: Function): HTMLElement {
@@ -237,21 +327,48 @@ export class ToolBar {
   }
 }
 
-function setButtonActive(this: ToolItem) {
+function setButtonActive(this: ToolItem) { // 设置按钮的激活状态
   if(this.queryState) {
     this.elm.className = `zeditor-tool__item ${this.key}${this.queryState() ? ' is-active' : ''}`;
   }  
 }
 
-function setFontName(this: ToolItem) {
+function selectFontName(this: ToolItem) { // 设置字体下拉框value
   if(this.queryState) {
-    let fontName: string = this.queryState();
-    setSelectValue(this.elm, fontOptions, fontName);
+    let fontName: Array<string> = this.queryState();
+    let temp = [...new Set(fontName)];
+    setSelectValue(this.elm, fontOptions, temp[0]);
   }
 }
 
-function setFontSize(this: ToolItem) {
-
+function selectFontSize(this: ToolItem) { // 设置字号下拉框value
+  if(this.queryState) {
+    let fontSize: Array<string> = this.queryState();
+    let temp = [...new Set(fontSize)]; // 去重
+    // 计算系统dpi，进行pt与px的换算
+    let tmpNode = document.createElement( "div" );
+    let dpiY: number = 0;
+    tmpNode.style.cssText = "width:1in;height:1in;position:absolute;left:0px;top:0px;z-index:99;visibility:hidden";
+    document.body.appendChild(tmpNode);
+    dpiY = tmpNode.offsetHeight;
+    document.body.removeChild(tmpNode);
+    tmpNode = null;
+    let $input: HTMLInputElement  = this.elm.querySelector("input.select-input");
+    temp[0] && fontSizeOptions.forEach(option => {
+      if(option.key.indexOf("pt") >= 0) { // 只支持pt和px俩种单位的字号选项
+        if(parseFloat(option.key).toFixed(1) === (parseFloat(temp[0]) * 72 / dpiY).toFixed(1)) {
+          this.elm.title = option.value;
+          $input.value = option.value;
+        }
+      }
+      else if(option.key.indexOf("px") >= 0) {
+        if(parseFloat(option.key).toFixed(1) === parseFloat(temp[0]).toFixed(1)) {
+          this.elm.title = option.value;
+          $input.value = option.value;
+        }
+      }
+    });
+  }
 }
 
 function setSelectValue(select: HTMLElement, options: Array<OptionItem>, option?: OptionItem | string) {

@@ -148,7 +148,20 @@ class DomUtil {
       }
     }
     return this;
-  }
+  };
+  // 设置style样式
+  setStyle(proto: string, value: string ) {
+    function resetChildStyle(children: HTMLCollection, proto: string): void {
+      children.length && [...children].forEach((child: HTMLElement) => {
+        child.style[proto] = "";
+        resetChildStyle(child.children, proto);
+      });
+    }
+    for(let item of this) {
+      item.style[proto] = value;
+      resetChildStyle(item.children, proto);
+    }
+  };
 };
 
 // 事件绑定

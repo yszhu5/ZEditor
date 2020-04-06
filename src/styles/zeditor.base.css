@@ -41,6 +41,8 @@
   line-height: 24px;
   width: 24px;
   margin: 0 4px;
+  padding: 4px;
+  box-sizing: border-box;
   text-align: center;
   border-radius: 1px;
   display: inline-block;
@@ -55,8 +57,8 @@
 }
 
 .zeditor-tool__item input {
-  width: calc(100% - 20px);
-  height: 22px;
+  width: calc(100% - 12px);
+  height: 24px;
   padding-left: 2px;
   border: none;
   outline: none;
@@ -66,26 +68,45 @@
   box-sizing: border-box;
 }
 
-.zeditor-tool__item .icon {
-  display: inline-block;
-  line-height: 24px;
-  width: 20px;
-  text-align: center;
-  padding-top: 3px;
-  box-sizing: border-box;
-}
-
 .zeditor-tool__item.show .ze-popper__wrap {
   display: block;
 }
 
+.zeditor-tool__item .color-block {
+  width: 16px;
+  height: 4px;
+  position: absolute;
+  bottom: 3px;
+  left: 2px;
+  background-color: #000;
+}
+
 .zeditor-tool__item.fontName {
+  text-align: left;
+  padding: 0;
   width: 75px;
 }
 
 .zeditor-tool__item.fontSize {
+  text-align: left;
+  padding: 0;
   width: 50px;
 }
+
+.zeditor-tool__item.foreColor,
+.zeditor-tool__item.hiliteColor {
+  width: 30px;
+  padding: 0;
+}
+
+.zeditor-tool__item.foreColor i,
+.zeditor-tool__item.hiliteColor i {
+  position: absolute;
+  left: 2px;
+  top: 2px;
+}
+
+
 
 
 
@@ -125,32 +146,31 @@
   font-style: normal;
   background-repeat: no-repeat;
   background-position: center;
-}
-
-.ze-icon-bold:after {
-  content: 'B';
-  font-weight: bold;
-}
-
-.ze-icon-italic:after {
-  content: 'I';
-  font-style: italic;
-}
-
-.ze-icon-underline:after {
-  content: 'U';
-  text-decoration: underline;
-  font-size: 15px;
   vertical-align: top;
 }
 
-.ze-icon-strikeThrough:after {
-  content: 'S';
-  text-decoration: line-through;
+.ze-icon-bold {
+  background-image: url(../images/icon-bold.svg);
 }
 
-.ze-icon-arrow--down {
-  background-image: url(../images/icon-arrow-b.png);
+.ze-icon-italic {
+  background-image: url(../images/icon-italic.svg);
+}
+
+.ze-icon-underline {
+  background-image: url(../images/icon-underline.svg);
+}
+
+.ze-icon-strikeThrough {
+  background-image: url(../images/icon-strikeThrough.svg);
+}
+
+.ze-icon-foreColor {
+  background-image: url(../images/icon-foreColor.svg);
+}
+
+.ze-icon-hiliteColor {
+  background-image: url(../images/icon-hiliteColor.svg);
 }
 
 .ze-popper__wrap {
@@ -180,4 +200,16 @@
   background-color: #f3f3f3;
 }
 
+.dropdown:after {
+  position: absolute;
+  top: calc(50% - 1.5px);
+  content: "";
+  width: 0;
+  height: 0;
+  right: 2px;
+  border-color: #505050 transparent transparent;
+  border-style: solid solid none;
+  border-width: 3px 3px 0;
+  transition: transform .3s;
+}
 

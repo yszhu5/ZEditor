@@ -37,6 +37,7 @@ export default class ZEditor {
       this.calcBodyHeight(); 
       this.el.appendChild(this.$body);
       this.focus();
+      this.queryAllStates();
     }
     else {
       console.error("init toolBar failed!");
@@ -52,7 +53,6 @@ export default class ZEditor {
 
   focus() { // 编辑器聚焦
     this.$body.focus();
-    this.getSelection();
   }
 
   calcBodyHeight() { // 动态计算编辑区高度
@@ -79,16 +79,19 @@ export default class ZEditor {
     this.getSelection();
   }
 
+  private queryAllStates() { // 计算所有工具栏状态值 
+    let baseTool: Array<ToolItem> = this.toolBar.tool.base as Array<ToolItem>; // 每次保存选区时检测工具栏状态
+    for(let j=0,len=baseTool.length; j<len; j++) {
+      baseTool[j].setState && baseTool[j].setState();
+    }      
+  }
+
   getSelection() { // 保存当前选区，保存为range
     let selection = window.getSelection();
     this.ranges = [];
     for(let i=0; i<selection.rangeCount; i++) {
       this.ranges.push(selection.getRangeAt(i));
-    }   
-    let baseTool: Array<ToolItem> = this.toolBar.tool.base as Array<ToolItem>; // 每次保存选区时检测工具栏状态
-    for(let j=0,len=baseTool.length; j<len; j++) {
-      baseTool[j].setState && baseTool[j].setState();
-    }      
+    }
   }
 
   execCommand(cmdName: string, cmdParam?: string, ranges?: Array<Range>) { // 对外接口，执行command命令
@@ -119,8 +122,10 @@ export default class ZEditor {
   private eventBind() { // 编辑器初始化事件绑定
     let vm = this;
     vm.getSelection = vm.getSelection.bind(vm);
+    vm.queryAllStates = vm.queryAllStates.bind(vm);
     vm.calcBodyHeight = vm.calcBodyHeight.bind(vm);
-    $Z(this.$body).on("mouseup", vm.getSelection);
+    $Z(this.$body).on("blur", vm.getSelection);
+    $Z(this.$body).on("mouseup", vm.queryAllStates);
     $Z.onResize(vm.calcBodyHeight);
   }
 }
