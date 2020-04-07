@@ -18,7 +18,7 @@ const baseTools: ToolMap = {
   "underline": "下划线",
   "strikeThrough": "删除线",
   "foreColor": "字体颜色",
-  "hiliteColor": "突出显示"
+  "backColor": "突出显示"
 };
 
 export const fontOptions: Array<OptionItem> = [
@@ -54,86 +54,86 @@ export const fontSizeOptions: Array<OptionItem> = [
 ];
 
 export const colorOptions: Array<OptionItem> = [
-  { key: "255, 255, 255", value: ""},
-  { key: "0, 0, 0", value: ""},
-  { key: "231, 230, 230", value: ""},
-  { key: "68, 84, 106", value: ""},
-  { key: "91, 155, 213", value: ""},
-  { key: "237, 125, 49", value: ""},
-  { key: "165, 165, 165", value: ""},
-  { key: "255, 192, 0", value: ""},
-  { key: "68, 114, 196", value: ""},
-  { key: "112, 173, 71", value: ""},
+  { key: "rgb(255, 255, 255)", value: ""},
+  { key: "rgb(0, 0, 0)", value: ""},
+  { key: "rgb(231, 230, 230)", value: ""},
+  { key: "rgb(68, 84, 106)", value: ""},
+  { key: "rgb(91, 155, 213)", value: ""},
+  { key: "rgb(237, 125, 49)", value: ""},
+  { key: "rgb(165, 165, 165)", value: ""},
+  { key: "rgb(255, 192, 0)", value: ""},
+  { key: "rgb(68, 114, 196)", value: ""},
+  { key: "rgb(112, 173, 71)", value: ""},
 
-  { key: "242, 242, 242", value: ""},
-  { key: "128, 128, 128", value: ""},
-  { key: "208, 206, 206", value: ""},
-  { key: "214, 220, 229", value: ""},
-  { key: "222, 235, 247", value: ""},
-  { key: "251, 229, 214", value: ""},
-  { key: "237, 237, 237", value: ""},
-  { key: "255, 242, 204", value: ""},
-  { key: "218, 227, 243", value: ""},
-  { key: "226, 240, 217", value: ""},
+  { key: "rgb(242, 242, 242)", value: ""},
+  { key: "rgb(128, 128, 128)", value: ""},
+  { key: "rgb(208, 206, 206)", value: ""},
+  { key: "rgb(214, 220, 229)", value: ""},
+  { key: "rgb(222, 235, 247)", value: ""},
+  { key: "rgb(251, 229, 214)", value: ""},
+  { key: "rgb(237, 237, 237)", value: ""},
+  { key: "rgb(255, 242, 204)", value: ""},
+  { key: "rgb(218, 227, 243)", value: ""},
+  { key: "rgb(226, 240, 217)", value: ""},
 
 
-  { key: "217, 217, 217", value: ""},
-  { key: "89, 89, 89", value: ""},
-  { key: "175, 171, 171", value: ""},
-  { key: "173, 185, 202", value: ""},
-  { key: "189, 215, 238", value: ""},
-  { key: "248, 203, 173", value: ""},
-  { key: "219, 219, 219", value: ""},
-  { key: "255, 230, 153", value: ""},
-  { key: "180, 199, 231", value: ""},
-  { key: "197, 224, 180", value: ""},
+  { key: "rgb(217, 217, 217)", value: ""},
+  { key: "rgb(89, 89, 89)", value: ""},
+  { key: "rgb(175, 171, 171)", value: ""},
+  { key: "rgb(173, 185, 202)", value: ""},
+  { key: "rgb(189, 215, 238)", value: ""},
+  { key: "rgb(248, 203, 173)", value: ""},
+  { key: "rgb(219, 219, 219)", value: ""},
+  { key: "rgb(255, 230, 153)", value: ""},
+  { key: "rgb(180, 199, 231)", value: ""},
+  { key: "rgb(197, 224, 180)", value: ""},
 
-  { key: "191, 191, 191", value: ""},
-  { key: "64, 64, 64", value: ""},
-  { key: "118, 113, 113", value: ""},
-  { key: "132, 151, 176", value: ""},
-  { key: "157, 195, 230", value: ""},
-  { key: "244, 177, 131", value: ""},
-  { key: "201, 201, 201", value: ""},
-  { key: "255, 217, 102", value: ""},
-  { key: "143, 170, 220", value: ""},
-  { key: "169, 209, 142", value: ""},
+  { key: "rgb(191, 191, 191)", value: ""},
+  { key: "rgb(64, 64, 64)", value: ""},
+  { key: "rgb(118, 113, 113)", value: ""},
+  { key: "rgb(132, 151, 176)", value: ""},
+  { key: "rgb(157, 195, 230)", value: ""},
+  { key: "rgb(244, 177, 131)", value: ""},
+  { key: "rgb(201, 201, 201)", value: ""},
+  { key: "rgb(255, 217, 102)", value: ""},
+  { key: "rgb(143, 170, 220)", value: ""},
+  { key: "rgb(169, 209, 142)", value: ""},
 
-  { key: "166, 166, 166", value: ""},
-  { key: "38, 38, 38", value: ""},
-  { key: "59, 56, 56", value: ""},
-  { key: "51, 63, 80", value: ""},
-  { key: "46, 117, 182", value: ""},
-  { key: "197, 90, 17", value: ""},
-  { key: "124, 124, 124", value: ""},
-  { key: "191, 144, 0", value: ""},
-  { key: "47, 85, 151", value: ""},
-  { key: "84, 130, 53", value: ""},
+  { key: "rgb(166, 166, 166)", value: ""},
+  { key: "rgb(38, 38, 38)", value: ""},
+  { key: "rgb(59, 56, 56)", value: ""},
+  { key: "rgb(51, 63, 80)", value: ""},
+  { key: "rgb(46, 117, 182)", value: ""},
+  { key: "rgb(197, 90, 17)", value: ""},
+  { key: "rgb(124, 124, 124)", value: ""},
+  { key: "rgb(191, 144, 0)", value: ""},
+  { key: "rgb(47, 85, 151)", value: ""},
+  { key: "rgb(84, 130, 53)", value: ""},
 
-  { key: "127, 127, 127", value: ""},
-  { key: "13, 13, 13", value: ""},
-  { key: "24, 23, 23", value: ""},
-  { key: "34, 42, 53", value: ""},
-  { key: "31, 78, 121", value: ""},
-  { key: "132, 60, 11", value: ""},
-  { key: "83, 83, 83", value: ""},
-  { key: "127, 96, 0", value: ""},
-  { key: "32, 56, 100", value: ""},
-  { key: "56, 87, 35", value: ""}
+  { key: "rgb(127, 127, 127)", value: ""},
+  { key: "rgb(13, 13, 13)", value: ""},
+  { key: "rgb(24, 23, 23)", value: ""},
+  { key: "rgb(34, 42, 53)", value: ""},
+  { key: "rgb(31, 78, 121)", value: ""},
+  { key: "rgb(132, 60, 11)", value: ""},
+  { key: "rgb(83, 83, 83)", value: ""},
+  { key: "rgb(127, 96, 0)", value: ""},
+  { key: "rgb(32, 56, 100)", value: ""},
+  { key: "rgb(56, 87, 35)", value: ""}
 
 ];
 
 export const standerColors: Array<OptionItem> = [
-  { key: "192, 0, 0", value: ""},
-  { key: "255, 0, 0", value: ""},
-  { key: "255, 192, 0", value: ""},
-  { key: "255, 255, 0", value: ""},
-  { key: "146, 208, 80", value: ""},
-  { key: "0, 176, 80", value: ""},
-  { key: "0, 176, 240", value: ""},
-  { key: "0, 112, 192", value: ""},
-  { key: "0, 32, 96", value: ""},
-  { key: "112, 48, 160", value: ""}
+  { key: "rgb(192, 0, 0)", value: ""},
+  { key: "rgb(255, 0, 0)", value: ""},
+  { key: "rgb(255, 192, 0)", value: ""},
+  { key: "rgb(255, 255, 0)", value: ""},
+  { key: "rgb(146, 208, 80)", value: ""},
+  { key: "rgb(0, 176, 80)", value: ""},
+  { key: "rgb(0, 176, 240)", value: ""},
+  { key: "rgb(0, 112, 192)", value: ""},
+  { key: "rgb(0, 32, 96)", value: ""},
+  { key: "rgb(112, 48, 160)", value: ""}
 ]
 
 export class ToolBar {
@@ -206,7 +206,7 @@ export class ToolBar {
         tempTool =  { name: baseTools[tool], key: tool, handler: null, queryState: null, setState: null, elm: null };
       }
       else {
-        tempTool =  tool;
+        tempTool = tool;
       }
       fragment.appendChild(this.initToolItem(tempTool));
       return tempTool;
@@ -215,21 +215,12 @@ export class ToolBar {
     $baseTool.appendChild(fragment);
   }
 
-  setActiveTab(evt: UIEvent, target: HTMLElement ) {
-    let key: string =  target.getAttribute("key");
-    if(this.tab.activeTab.key !== key) {
-      this.tab.activeTab = this.tab.tabList.find(tab => tab.key === key);
-      $Z(".zditor__wrap .tool-bar__tab-item").toggleClass("is-active", false);
-      $Z(target).toggleClass("is-active", true);
-    }  
-  }
-
   initToolItem(tool: ToolItem): HTMLElement {
     if(!tool.handler) { // 指定默认的handler方法
       tool.handler = (evt?: UIEvent, ranges?: Array<Range>, cmdParam?: string): boolean => execCommand(tool.key, cmdParam);
     }
     if(!tool.queryState) { // 指定默认的queryState方法
-      tool.queryState = (ranges?: Array<Range>): boolean | Array<string> => queryCommand(tool.key);
+      tool.queryState = (ranges?: Array<Range>): boolean | string => queryCommand(tool.key);
     }
     let $item: HTMLElement;
     switch(tool.key) {
@@ -237,10 +228,8 @@ export class ToolBar {
         tool.setState = selectFontName.bind(tool);
         $item = this.initFontSelect(tool, fontOptions, { width: 100 });
         break;      
-      case "foreColor": // 字体颜色工具初始化
-        $item = this.initColorPicker(tool);
-        break;
-      case "hiliteColor": // 背景色突出显示
+      case "foreColor": // 字体颜色工具
+      case "backColor": // 背景色突出显示
         $item = this.initColorPicker(tool);
         break;
       case "fontSize": // 字号工具初始化
@@ -286,19 +275,62 @@ export class ToolBar {
     let vm = $Z($select);
     vm.on("click", (evt: UIEvent, target: HTMLElement) => {
       evt.stopPropagation();
-      vm.toggleClass("show");
-    });
-    $Z(document.body).on("click", (evt: UIEvent, target: HTMLElement) => { // 点击空白处关闭下拉框
-      vm.toggleClass("show", false);
+      let flag = $select.className.indexOf("show");
+      this.hideAllPopper();
+      if(flag < 0) {        
+        vm.toggleClass("show");
+      }  
     });
     return $select;
   }
 
   // 初始化颜色选择工具( forceColor & hiliteColor)
   initColorPicker(tool: ToolItem): HTMLElement {
+    tool.setState = selectColor.bind(tool);
     let $picker: HTMLElement = document.createElement("div");
     $picker.className = `zeditor-tool__item ${tool.key} dropdown`;
-    $picker.innerHTML = `<i class="ze-icon-${tool.key}"></i><span class="color-block"></span></span>`;
+    $picker.innerHTML = `<i class="ze-icon-${tool.key}"></i><span class="color-block"></span>`;
+    let $block: HTMLElement = $picker.querySelector(".color-block"); // 颜色指示器
+    let $popper: HTMLElement = document.createElement("div");
+    $popper.className = "ze-popper__wrap color-picker";
+    $popper.style.top = "28px";
+    let that = this;
+    function createItems(color: OptionItem): HTMLElement {
+      let $colorItem = document.createElement("div");
+      $colorItem.className = `color-picker__item ${color.key === "rgb(255, 255, 255)" ? "is-white": ''}`;
+      $colorItem.style.backgroundColor = color.key;
+      $colorItem.onclick = (evt: UIEvent) => {
+        $Z($picker.querySelectorAll(".color-picker__item")).toggleClass("is-selected", false);
+        $Z($colorItem).toggleClass("is-selected", true);
+        $block.style.backgroundColor = color.key;
+        $picker.title = color.value;
+        that.onCommand(evt, tool, color.key);
+      }
+      return $colorItem;
+    }
+    let $normalGroup = document.createElement("div");
+    $normalGroup.className = "color-picker__group--normal";   
+    colorOptions.forEach((color: OptionItem) => {
+      $normalGroup.appendChild(createItems(color));
+    });
+    $popper.appendChild($normalGroup);
+    let $standardGroup = document.createElement("div");
+    $standardGroup.className = "color-picker__group--standard";
+    $standardGroup.innerHTML = '<div>标准色</div>';
+    standerColors.forEach((color: OptionItem) => {
+      $standardGroup.appendChild(createItems(color));
+    });
+    $popper.appendChild($standardGroup);
+    $picker.appendChild($popper);
+    let vm = $Z($picker);
+    vm.on("click", (evt: UIEvent, target: HTMLElement) => { // 事件绑定
+      evt.stopPropagation();
+      let flag = $picker.className.indexOf("show");
+      this.hideAllPopper();
+      if(flag < 0) {        
+        vm.toggleClass("show");
+      }  
+    });
     return $picker;
   }
 
@@ -320,10 +352,25 @@ export class ToolBar {
     return $ul;
   }
 
+  setActiveTab(evt: UIEvent, target: HTMLElement ) {
+    let key: string =  target.getAttribute("key");
+    if(this.tab.activeTab.key !== key) {
+      this.tab.activeTab = this.tab.tabList.find(tab => tab.key === key);
+      $Z(".zditor__wrap .tool-bar__tab-item").toggleClass("is-active", false);
+      $Z(target).toggleClass("is-active", true);
+    }  
+  }
+
+  hideAllPopper() {
+    $Z(".zeditor-tool__item").toggleClass("show", false);
+  }
+
   eventBind(): void {
     let vm = this;
     vm.setActiveTab = this.setActiveTab.bind(vm);
+    vm.hideAllPopper = this.hideAllPopper.bind(vm);
     $Z(this.el).on("click", ".tool-bar__tab-item", vm.setActiveTab);
+    $Z(document.body).on("click", this.hideAllPopper);
   }
 }
 
@@ -335,16 +382,14 @@ function setButtonActive(this: ToolItem) { // 设置按钮的激活状态
 
 function selectFontName(this: ToolItem) { // 设置字体下拉框value
   if(this.queryState) {
-    let fontName: Array<string> = this.queryState();
-    let temp = [...new Set(fontName)];
-    setSelectValue(this.elm, fontOptions, temp[0]);
+    let fontName: string = this.queryState();
+    setSelectValue(this.elm, fontOptions, fontName);
   }
 }
 
 function selectFontSize(this: ToolItem) { // 设置字号下拉框value
   if(this.queryState) {
-    let fontSize: Array<string> = this.queryState();
-    let temp = [...new Set(fontSize)]; // 去重
+    let fontSize: string = this.queryState();
     // 计算系统dpi，进行pt与px的换算
     let tmpNode = document.createElement( "div" );
     let dpiY: number = 0;
@@ -354,20 +399,32 @@ function selectFontSize(this: ToolItem) { // 设置字号下拉框value
     document.body.removeChild(tmpNode);
     tmpNode = null;
     let $input: HTMLInputElement  = this.elm.querySelector("input.select-input");
-    temp[0] && fontSizeOptions.forEach(option => {
+    fontSize && fontSizeOptions.forEach(option => {
       if(option.key.indexOf("pt") >= 0) { // 只支持pt和px俩种单位的字号选项
-        if(parseFloat(option.key).toFixed(1) === (parseFloat(temp[0]) * 72 / dpiY).toFixed(1)) {
+        if(parseFloat(option.key).toFixed(1) === (parseFloat(fontSize) * 72 / dpiY).toFixed(1)) {
           this.elm.title = option.value;
           $input.value = option.value;
         }
       }
       else if(option.key.indexOf("px") >= 0) {
-        if(parseFloat(option.key).toFixed(1) === parseFloat(temp[0]).toFixed(1)) {
+        if(parseFloat(option.key).toFixed(1) === parseFloat(fontSize).toFixed(1)) {
           this.elm.title = option.value;
           $input.value = option.value;
         }
       }
     });
+  }
+}
+
+function selectColor(this: ToolItem) { // 设置颜色选择器选中值
+  if(this.queryState) {
+    let color: string = this.queryState();
+    let $block: HTMLElement = this.elm.querySelector(".color-block");
+    $block && ($block.style.backgroundColor = color);
+    let $selected: HTMLElement = this.elm.querySelector(".color-picker__item.is-selected");
+    $selected && ($selected.className = "color-picker__item");
+    $selected = this.elm.querySelector(`.color-picker__item[style*="color: ${color}"]`);
+    $selected && ($selected.className = "color-picker__item is-selected");
   }
 }
 

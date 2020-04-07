@@ -104,23 +104,6 @@ const replaceWith = function(target: Node, nodes: Array<Node>) {
   }
 }
 
-// 计算当前选区的字体
-const queryFontName = function(): Array<string> {
-  let fontNameList: Array<string> = [];
-  let selection = window.getSelection();
-  for(let i=0; i<selection.rangeCount; i++) {
-    let range = selection.getRangeAt(i);
-    getAllNodes(range, (node: HTMLElement) => {
-      if(node.nodeType === 3) {
-        node = node.parentNode as HTMLElement;
-      }
-      let font = getComputedStyle(node).getPropertyValue("font-family");
-      fontNameList.push(font);
-    });
-  }
-  return fontNameList;
-}
-
 // 设置当前选区的字号
 const setFontSize = function(fontSize: string): boolean {
   if(!fontSize) {
@@ -195,47 +178,27 @@ const setFontSize = function(fontSize: string): boolean {
 }
 
 // 查询当前选取的字号
-const queryFontSize = function(): Array<string> {
+const queryFontSize = function(): string {
   let selection = window.getSelection();
-  let sizeList: Array<string> = [];
+  let fontSize: string;
   for(let i=0; i<selection.rangeCount; i++) {
     let range = selection.getRangeAt(i);
-    getAllNodes(range, (node: HTMLElement) => {
-      if(node.nodeType === 3) {
-        sizeList.push(getComputedStyle(node.parentNode as HTMLElement).getPropertyValue("font-size"));
+    let node: HTMLElement = getAllNodes(range)[0] as HTMLElement;
+    if(!node) {
+      return "";
+    }
+    if(node.nodeType === 3) {
+      fontSize = getComputedStyle(node.parentNode as HTMLElement).getPropertyValue("font-size");
+    }
+    else {
+      let temp = node.childNodes[range.startOffset] as HTMLElement;
+      if(!temp || temp.nodeType === 3) {
+        temp = node;
       }
-      else {
-        if(node === range.startContainer) {
-          let temp = node.childNodes[range.startOffset - 1];
-          if(temp) {
-            getSiblings(temp, "next").forEach((item: HTMLElement) => {
-              item.nodeType === 3 && (item = item.parentNode as HTMLElement);
-              sizeList.push(getComputedStyle(item).getPropertyValue("font-size"));
-            });
-          }
-          else {
-            sizeList.push(getComputedStyle(node).getPropertyValue("font-size"));
-          }
-        }
-        if(node === range.endContainer) {
-          let temp = node.childNodes[range.endOffset - 1];
-          if(temp) {
-            getSiblings(temp, "prev").forEach((item: HTMLElement) => {
-              item.nodeType === 3 && (item = item.parentNode as HTMLElement);
-              sizeList.push(getComputedStyle(item).getPropertyValue("font-size"));
-            });
-          }
-          else {
-            sizeList.push(getComputedStyle(node).getPropertyValue("font-size"));
-          }
-        }
-        else {
-          sizeList.push(getComputedStyle(node).getPropertyValue("font-size"));
-        }
-      }
-    });
+      fontSize = getComputedStyle(temp).getPropertyValue("font-size");
+    }
   }
-  return sizeList;
+  return fontSize;
 }
 
 // 插入html片段
@@ -280,11 +243,13 @@ export const execCommand = function(cmdName: string, cmdParam?: string): boolean
   return result;
 }
 
-export const queryCommand = function(cmdName: string): boolean | Array<string> {
-  let result: boolean | Array<string>;
+export const queryCommand = function(cmdName: string): boolean | string {
+  let result: boolean | string;
   switch(cmdName) {
-    case "fontName": 
-      result = queryFontName();
+    case "fontName":
+    case "foreColor":
+    case "backColor":
+      result = document.queryCommandValue(cmdName);
       break;
     case "fontSize": 
       result = queryFontSize();
