@@ -170,8 +170,25 @@
 }
 
 .ze-icon-backColor {
-  background-image: url(../images/icon-hiliteColor.svg);
+  background-image: url(../images/icon-backColor.svg);
 }
+
+.ze-icon-justifyLeft {
+  background-image: url(../images/icon-justifyLeft.svg);
+}
+
+.ze-icon-justifyCenter {
+  background-image: url(../images/icon-justifyCenter.svg);
+}
+
+.ze-icon-justifyRight {
+  background-image: url(../images/icon-justifyRight.svg);
+}
+
+.ze-icon-justifyFull {
+  background-image: url(../images/icon-justifyFull.svg);
+}
+
 
 .ze-popper__wrap {
   position: absolute;

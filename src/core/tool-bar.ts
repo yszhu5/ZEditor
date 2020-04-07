@@ -18,7 +18,11 @@ const baseTools: ToolMap = {
   "underline": "下划线",
   "strikeThrough": "删除线",
   "foreColor": "字体颜色",
-  "backColor": "突出显示"
+  "backColor": "突出显示",
+  "justifyLeft": "左对齐",
+  "justifyCenter": "居中对齐",
+  "justifyRight": "右对齐",
+  "justifyFull": "俩端对齐"
 };
 
 export const fontOptions: Array<OptionItem> = [
