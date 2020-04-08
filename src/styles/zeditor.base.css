@@ -1,6 +1,6 @@
 .tool-bar__wrap {
   background-color: #2b579a;
-  padding-top: 8px;
+  padding-top: 6px;
   font-size: 14px;
   color: #fff;
   box-shadow: -1px 1px 2px 1px rgba(200,200,200,0.6);
@@ -11,7 +11,7 @@
 }
 
 .tool-bar__tab-item {
-  line-height: 28px;
+  line-height: 24px;
   display: inline-block;
   padding: 0 16px;
   cursor: pointer;
@@ -189,6 +189,17 @@
   background-image: url(../images/icon-justifyFull.svg);
 }
 
+.ze-icon-removeFormat {
+  background-image: url(../images/icon-removeFormat.svg);
+}
+
+.ze-icon-undo {
+  background-image: url(../images/icon-undo.svg);
+}
+
+.ze-icon-redo {
+  background-image: url(../images/icon-redo.svg);
+}
 
 .ze-popper__wrap {
   position: absolute;

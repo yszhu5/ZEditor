@@ -11,6 +11,8 @@ interface ToolMap {
 interface OptionItem { key: string, value: string, default?: boolean };
 
 const baseTools: ToolMap = {
+  "undo": "撤销",
+  "redo": "重做",
   "fontName": "字体",
   "fontSize": "字号",
   "bold": "加粗",
@@ -22,7 +24,8 @@ const baseTools: ToolMap = {
   "justifyLeft": "左对齐",
   "justifyCenter": "居中对齐",
   "justifyRight": "右对齐",
-  "justifyFull": "俩端对齐"
+  "justifyFull": "俩端对齐",
+  "removeFormat": "清除格式"
 };
 
 export const fontOptions: Array<OptionItem> = [
