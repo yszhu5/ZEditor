@@ -1,9 +1,10 @@
+import { ToolTabs, Config } from "./config";
 import $Z from '../domUtil/index';
 import { execCommand, queryCommand } from "./commands";
 
 interface TabItem { name: string, key: string };
 export interface ToolItem { name: string, key: string, handler: Function, queryState: Function, setState: Function, elm: HTMLElement };
-interface Tab { tabList: Array<TabItem>, activeTab: TabItem, node?: any };
+//interface Tab { tabList: Array<TabItem>, activeTab: TabItem, node?: any };
 interface Tool { base: Array<ToolItem | string>, insert: Array<ToolItem>, layout: Array<ToolItem> };
 interface ToolMap {
   [index: string]: string
@@ -158,52 +159,35 @@ export const standerColors: Array<OptionItem> = [
 ]
 
 export class ToolBar {
-  el: any
-  title: string
-  tab: Tab
-  tool: Tool
+  el: HTMLElement
+  config: Config
   onCommand: Function
-  constructor({ el, tools, onCommand, title }: {
-    el: any,
-    tools: Array<ToolItem | string>,
-    onCommand: Function,
-    title?: string
-  }) {
+  activeTab: string
+  constructor(el: HTMLElement, config: Config, onCommand: Function) {
     this.el = el;
-    this.title = title || "新建文档";
-    this.tab = {
-      tabList: [
-        { name: "开始", key: "base" },
-        { name: "插入", key: "insert" },
-        { name: "布局", key: "layout" }
-      ],
-      activeTab: null,
-      node: null
-    };
-    this.tool = {
-      base: tools || [],
-      insert: [],
-      layout: [],
-    };
+    this.config = config;
+    this.activeTab = null;
     this.onCommand = onCommand;
     this.init();
   }
 
   init(): void {
-    let bar = document.createElement("header");
-    bar.className = "tool-bar__wrap";
-    bar.innerHTML = this.initTab() + this.initTool();
-    this.el.appendChild(bar);
+    let tmpl: string = "";
+    if(this.config.toolLayOut === "tab") {
+      tmpl += this.initTab();
+    }
+    tmpl += this.initTool();
     this.initBaseTool();
     this.eventBind(); 
   }
 
   initTab() {
+    const TabMap : { [index: string]: string } = { "base": "开始", "insert": "插入", "layout": "布局" };
     let tmpl: string = `<div class="tool-bar__tab-list">`;
-    for(let i:number=0; i<this.tab.tabList.length; i++) {
-      let tab = this.tab.tabList[i];
-      i === 0 && !this.tab.activeTab && (this.tab.activeTab = tab);
-      tmpl += `<span class="tool-bar__tab-item${this.tab.activeTab.key === tab.key ? ' is-active' : ''}" key="${tab.key}" title="${tab.name}">${tab.name}</span>`;
+    for(const key in this.config.toolTabs) {
+      let tab = this.config.toolTabs[key];
+      !this.activeTab && (this.activeTab = key);
+      tmpl += `<span class="tool-bar__tab-item${this.activeTab === key ? ' is-active' : ''}" key="${key}" title="${TabMap[key]}">${Tab[key]}</span>`;
     }
     return tmpl + "</div>";
   }
