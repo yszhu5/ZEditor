@@ -29,8 +29,7 @@
 .tool-bar__tool--base, .tool-bar__tool--insert, .tool-bar__tool--layout {
   background-color: #f3f3f3;
   color: #505050;
-  height: 32px;
-  line-height: 32px;
+  line-height: 24px;
   padding: 4px 8px;
   box-sizing: border-box;
 }
@@ -200,6 +199,66 @@
 .ze-icon-redo {
   background-image: url(../images/icon-redo.svg);
 }
+
+.ze-icon-subscript {
+  background-image: url(../images/icon-subscript.svg);
+}
+
+.ze-icon-superscript {
+  background-image: url(../images/icon-superscript.svg);
+}
+
+.ze-icon-selectAll {
+  background-image: url(../images/icon-selectAll.svg);
+}
+
+.ze-icon-search {
+  background-image: url(../images/icon-search.svg);
+}
+
+.ze-icon-replace {
+  background-image: url(../images/icon-replace.svg);
+}
+
+.ze-icon-lineHeight {
+  background-image: url(../images/icon-lineHeight.svg);
+}
+
+.ze-icon-insertTable {
+  background-image: url(../images/icon-insertTable.svg);
+}
+
+.ze-icon-insertImage {
+  background-image: url(../images/icon-insertImage.svg);
+}
+
+.ze-icon-insertOrderedList {
+  background-image: url(../images/icon-insertOrderedList.svg);
+}
+
+.ze-icon-insertUnorderedList {
+  background-image: url(../images/icon-insertUnorderedList.svg);
+}
+
+.ze-icon-insertLink {
+  background-image: url(../images/icon-insertLink.svg);
+}
+
+.ze-icon-insertChar {
+  background-image: url(../images/icon-insertChar.svg);
+}
+
+.ze-icon-insertTime {
+  background-image: url(../images/icon-insertTime.svg);
+}
+
+.ze-icon-insertRemark {
+  background-image: url(../images/icon-insertRemark.svg);
+}
+
+
+
+
 
 .ze-popper__wrap {
   position: absolute;

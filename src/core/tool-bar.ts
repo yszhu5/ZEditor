@@ -19,13 +19,27 @@ const baseTools: ToolMap = {
   "italic": "斜体",
   "underline": "下划线",
   "strikeThrough": "删除线",
+  "subscript": "下标",
+  "superscript": "上标",
   "foreColor": "字体颜色",
   "backColor": "突出显示",
   "justifyLeft": "左对齐",
   "justifyCenter": "居中对齐",
   "justifyRight": "右对齐",
   "justifyFull": "俩端对齐",
-  "removeFormat": "清除格式"
+  "lineHeight": "行间距",
+  "selectAll": "全选",
+  "removeFormat": "清除格式",
+  "search": "查找",
+  "replace": "替换",
+  "insertLink": "插入超链接",
+  "insertTable": "插入表格",
+  "insertImage": "插入图片",
+  "insertUnorderedList": "插入无序列表",
+  "insertOrderedList": "插入有序列表",
+  "insertChar": "插入特殊字符",
+  "insertTime": "插入日期时间",
+  "insertRemark": "插入批注"
 };
 
 export const fontOptions: Array<OptionItem> = [
