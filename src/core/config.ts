@@ -19,10 +19,10 @@ export interface Tool { // 工具栏Tool接口
 }
 
 export interface ToolTabs { // 工具栏中工具分组接口
-  [index: string]: Array<string>,
-  base: Array<string>,
-  insert: Array<string>,
-  layout: Array<string>
+  [index: string]: Array<Tool | string>,
+  base: Array<Tool | string>,
+  insert: Array<Tool | string>,
+  layout: Array<Tool | string>
 }
 
 interface ToolMap { // 工具key-name的映射表接口
@@ -32,8 +32,8 @@ interface ToolMap { // 工具key-name的映射表接口
 export interface Config { // 全局配置接口
   toolLayOut?: string, // 工具栏布局方式，tab | line
   toolMap?: ToolMap, // 工具key-name映射表
-  toolTabs?: ToolTabs, // toolLayOut为tab时生效，对tools中所有工具进行分组
-  tools?: Array<string | Tool> // 所有工具对象列表，系统工具直接传入字符串，用户自定义工具传入Tool对象
+  toolTabs?: ToolTabs, // toolLayOut为tab时必选，对tools中所有工具进行分组配置，系统工具直接传入字符串，用户自定义工具传入Tool对象
+  tools?: Array<Tool | string> // toolLayOut为line时，所有工具对象列表，系统工具直接传入字符串，用户自定义工具传入Tool对象
   fontOptions?: Array<Option>, // 字体列表配置
   fontSizeOptions?: Array<Option>, // 字号列表配置
   colorOptions?: Array<Option>, // 颜色列表配置
@@ -82,7 +82,7 @@ export const defaults: Config = {
       "fontSize",
       "bold",
       "italic",
-      "undeline",
+      "underline",
       "strikeThrough",
       "subscript",
       "superscript",

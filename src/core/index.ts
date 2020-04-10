@@ -1,4 +1,4 @@
-import { ToolItem, Config, defaults } from "config";
+import { Tool, Config, defaults } from "./config";
 import { ToolBar } from "./tool-bar";
 import $Z from '../domUtil/index';
 import { execCommand, queryCommand } from "./commands";
@@ -35,10 +35,10 @@ export default class ZEditor implements ZE {
   }
 
   private initToolBar() { // 工具栏初始化
-    let $el = document.createElement("header");  
-    this.toolBar = new ToolBar($el, this.config, this.toolCommand.bind(this));
+    let $el = document.createElement("header");
+    $el.className = "tool-bar__wrap";
+    this.toolBar = new ToolBar($el, this.config);
     this.el.appendChild($el);
-    $el = null;
   }
 
   private initBody() { // 编辑区初始化
@@ -67,16 +67,6 @@ export default class ZEditor implements ZE {
     $Z.onResize(vm.calcBodyHeight);
   }
 
-  private toolCommand(evt: UIEvent, tool: ToolItem, cmdName?: string) { // 工具栏点击事件回调
-    let selection = window.getSelection();
-    selection.removeAllRanges();
-    this.ranges.forEach(range => {
-      selection.addRange(range);
-    });
-    tool.handler(evt, this.ranges, cmdName);
-    this.getSelection();
-  }
-
   setDeafultStyle() {  // 设置编辑区默认格式
     let defaultFontName = this.config.fontOptions.find(option => option.default);
     this.$body.style.fontFamily = defaultFontName.key;
@@ -99,14 +89,18 @@ export default class ZEditor implements ZE {
   }
 
   
-
-  
-
   private queryAllStates() { // 计算所有工具栏状态值 
-    let baseTool: Array<ToolItem> = this.toolBar.tool.base as Array<ToolItem>; // 每次保存选区时检测工具栏状态
-    for(let j=0,len=baseTool.length; j<len; j++) {
-      baseTool[j].setState && baseTool[j].setState();
-    }      
+    let tools: Array<Tool>;
+    if(this.config.toolLayOut === "tab") {
+      let { base, insert, layout } = { ...this.config.toolTabs };
+      tools = base.concat(insert, layout) as Array<Tool>;
+    }
+    else {
+      tools = this.config.tools as Array<Tool>;
+    } 
+    tools.forEach((tool: Tool) => {
+      tool.setState && tool.setState();
+    }); 
   }
 
   getSelection() { // 保存当前选区，保存为range
@@ -115,6 +109,10 @@ export default class ZEditor implements ZE {
     for(let i=0; i<selection.rangeCount; i++) {
       this.ranges.push(selection.getRangeAt(i));
     }
+    selection.removeAllRanges();
+    this.ranges.forEach(range => {
+      selection.addRange(range);
+    });
   }
 
   execCommand(cmdName: string, cmdParam?: string, ranges?: Array<Range>) { // 执行工具栏对应的command命令

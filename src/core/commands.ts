@@ -1,4 +1,3 @@
-import { fontSizeOptions } from "./tool-bar";
 import $Z from "../domUtil/index";
 
 // 获取Range覆盖的所有node节点
@@ -191,7 +190,8 @@ const queryFontSize = function(): string {
       fontSize = getComputedStyle(node.parentNode as HTMLElement).getPropertyValue("font-size");
     }
     else {
-      let temp = node.childNodes[range.startOffset] as HTMLElement;
+      let index = range.startOffset > 0 ? (range.startOffset - 1) : 0;
+      let temp = node.childNodes[index] as HTMLElement;
       if(!temp || temp.nodeType === 3) {
         temp = node;
       }
