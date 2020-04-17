@@ -97,8 +97,6 @@ const replaceWith = function(target: Node, nodes: Array<Node>) {
   else {
     for(let i=0; i<len; i++) {
       nodes[i] && parent.appendChild(nodes[i]);
-      console.log(nodes[i]);
-      console.log(parent);
     }
   }
 }

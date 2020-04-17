@@ -3,22 +3,29 @@ import { ToolBar } from "./tool-bar";
 import $Z from '../domUtil/index';
 import { execCommand, queryCommand } from "./commands";
 
-interface ZE {
-  defaults: Config
+interface EventQueue {
+  [index: string]: Set<Function>,
+  contentChange: Set<Function>
 }
 
-export default class ZEditor implements ZE { 
+export default class ZEditor { 
   el: HTMLElement  // 编辑器的容器Dom
   config: Config // 组件实例的配置项，优先级高于默认配置
   toolBar: ToolBar // 工具栏对象
   $body: HTMLElement // 编辑区dom对象
+  count: number // 编辑区字数统计
+  html: string // 编辑区html内容
+  text: string // 编辑区文本内容
   private ranges: Array<Range> // 当前选取所对应的Range集合，用于恢复选区
-  defaults: Config
-  constructor(el: HTMLElement, config?: Config) {    
+  private events: EventQueue // 编辑器绑定的事件队列
+  constructor(el: HTMLElement, config?: Config) {   
     this.el = el || document.body;
     this.toolBar = null;
     this.$body = null;
     this.ranges = [];
+    this.events = {
+      contentChange: new Set()
+    };
     this.config = Object.assign(ZEditor.defaults, config); // 合并配置项
     this.init(); // 初始化
   }
@@ -37,7 +44,7 @@ export default class ZEditor implements ZE {
   private initToolBar() { // 工具栏初始化
     let $el = document.createElement("header");
     $el.className = "tool-bar__wrap";
-    this.toolBar = new ToolBar($el, this.config);
+    this.toolBar = new ToolBar($el, this.config, this.queryAllStates);
     this.el.appendChild($el);
   }
 
@@ -45,11 +52,11 @@ export default class ZEditor implements ZE {
     if(this.toolBar.el) {
       this.$body = document.createElement("div");
       this.$body.className = "editor-body__wrap";
-      this.$body.contentEditable = "true";      
+      this.$body.contentEditable = "true";
       this.setDeafultStyle();
       this.calcBodyHeight(); 
       this.el.appendChild(this.$body);
-      this.focus();
+      this.focus();      
       this.queryAllStates();
     }
     else {
@@ -62,9 +69,45 @@ export default class ZEditor implements ZE {
     vm.getSelection = vm.getSelection.bind(vm);
     vm.queryAllStates = vm.queryAllStates.bind(vm);
     vm.calcBodyHeight = vm.calcBodyHeight.bind(vm);
-    $Z(this.$body).on("blur", vm.getSelection);
-    $Z(this.$body).on("mouseup", vm.queryAllStates);
+    vm.insertSelection = vm.insertSelection.bind(vm);
+    $Z(this.$body).on("blur", vm.getSelection); // 监听编辑区失焦事件
+    $Z(this.$body).on("mouseup", vm.queryAllStates); // 监听编辑区mouseup事件
+    $Z(this.$body).on("keyup", (evt: UIEvent) => {
+      this.callEvent("contentChange", evt);
+    });
     $Z.onResize(vm.calcBodyHeight);
+  }
+
+  private callEvent(evtName: string, evt: UIEvent) {
+    if(evtName === "contentChange") {
+      this.countChars();
+    }
+    this.events[evtName].forEach((handler: Function) => {
+      handler && handler();
+    });
+  }
+
+  countChars() { // 统计字数
+    this.html = this.$body.innerHTML;
+    this.text = this.html.replace(/<.*?>/g, '');
+    this.count = this.text.length;
+    if(!this.html) {
+      this.$body.innerHTML = "<p><br></p>";
+    }
+  }
+
+
+  on(evtName: string, handler: Function): ZEditor { // 绑定编辑器事件
+    if(!this.events[evtName]) {
+      this.events[evtName] = new Set();
+    }
+    this.events[evtName].add(handler); 
+    return this;
+  }
+
+  off(evtName: string, handler: Function): ZEditor { // 解除编辑器事件绑定
+    this.events[evtName].delete(handler);
+    return this;
   }
 
   setDeafultStyle() {  // 设置编辑区默认格式
@@ -75,11 +118,16 @@ export default class ZEditor implements ZE {
   }
 
   focus() { // 编辑器聚焦
+    this.countChars();
     this.$body.focus();
   }
 
   blur() { // 编辑器失焦
-    this.$body.focus();
+    this.$body.blur();
+  }
+
+  insertSelection() { // 插入空白段落
+    this.execCommand("insertHTML", "<p><br></p>");
   }
 
   calcBodyHeight() { // 动态计算编辑区高度
@@ -88,7 +136,6 @@ export default class ZEditor implements ZE {
     this.$body.style.height = Math.floor(height - top - 8) + "px";
   }
 
-  
   private queryAllStates() { // 计算所有工具栏状态值 
     let tools: Array<Tool>;
     if(this.config.toolLayOut === "tab") {
