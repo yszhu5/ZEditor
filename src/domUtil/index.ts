@@ -30,7 +30,9 @@ class DomUtil {
     // 添加length属性
     this.length = nodes.length;
     nodes = null;
+    return this;
   }
+
   // 添加iterable迭代器属性
   private [Symbol.iterator]() {
     let index: number = 0;
@@ -45,6 +47,7 @@ class DomUtil {
       }
     };
   };
+   
   // 事件委托
   on(event: string, childSelector?: string | Function, callback?: Function) {
     let selector: string;
@@ -150,7 +153,7 @@ class DomUtil {
     return this;
   };
   // 设置style样式
-  setStyle(proto: string, value: string ) {
+  setStyle(proto: string, value: string ): DomUtil {
     function resetChildStyle(children: HTMLCollection, proto: string): void {
       children.length && [...children].forEach((child: HTMLElement) => {
         child.style[proto] = "";
@@ -161,6 +164,7 @@ class DomUtil {
       item.style[proto] = value;
       resetChildStyle(item.children, proto);
     }
+    return this;
   };
 };
 

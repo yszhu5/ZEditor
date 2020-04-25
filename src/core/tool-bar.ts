@@ -6,9 +6,11 @@ export class ToolBar { // 编辑器工具栏class
   el: HTMLElement
   config: Config
   activeTab: string
-  constructor(el: HTMLElement, config: Config) {
+  callCommand: Function 
+  constructor(el: HTMLElement, config: Config, callCommand: Function) {
     this.el = el;
     this.config = config;
+    this.callCommand = callCommand;
     this.activeTab = null;
     this.init();
   }
@@ -58,9 +60,12 @@ export class ToolBar { // 编辑器工具栏class
   }
 
   initToolItem(tool: Tool): HTMLElement { // 初始化单个工具
-    if(!tool.handler) { // 指定默认的handler方法
-      tool.handler = (evt: UIEvent, tool: Tool, cmdParam?: string): boolean => execCommand(tool.key, cmdParam);
-    }
+    let handler = tool.handler;
+    tool.handler = (evt: UIEvent, tool: Tool, cmdParam?: string): boolean => {
+      let result = !handler ? execCommand(tool.key, cmdParam) : handler(evt, tool.key, cmdParam);
+      this.callCommand(tool);
+      return result;
+    };
     if(!tool.queryState) { // 指定默认的queryState方法
       tool.queryState = (): boolean | string => queryCommand(tool.key);
     }
@@ -92,12 +97,10 @@ export class ToolBar { // 编辑器工具栏class
     let $button: HTMLElement = document.createElement("div");
     $button.className = "zeditor-tool__item " + tool.key;
     $button.title = tool.name;
-    $button.innerHTML = `<i class="ze-icon-${tool.key}"></i>`;
-    if(tool.handler) {
-      $button.onclick = (evt: UIEvent) => {
-        tool.handler(evt, tool);
-      }
-    }
+    $button.innerHTML = `<i class="ze-icon-${tool.key}"></i>`;    
+    $button.onclick = (evt: UIEvent) => {
+      tool.handler && tool.handler(evt, tool);
+    }    
     return $button;
   }
 
