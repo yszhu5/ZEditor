@@ -75,7 +75,7 @@ const getAllLeafNodes = function(node: Node, list?: Array<Node>): Array<Node> {
 }
 
 // 替换自身节点
-const replaceWith = function(target: Node, nodes: Array<Node>) {
+const replaceWith = function(target: Node, nodes: Array<Node> | NodeList) {
   let parent = target.parentNode;
   let reference: Node = null;
   let nodeList = parent.childNodes;
@@ -97,74 +97,64 @@ const replaceWith = function(target: Node, nodes: Array<Node>) {
   else {
     for(let i=0; i<len; i++) {
       nodes[i] && parent.appendChild(nodes[i]);
-      console.log(nodes[i]);
-      console.log(parent);
     }
   }
 }
 
-// 设置当前选区的字号
+// 设置当前选区的字号, fontSize为null时清除所有字号样式
 const setFontSize = function(fontSize: string): boolean {
-  if(!fontSize) {
-    return false;
-  }
   let selection = window.getSelection();
   for(let i=0; i<selection.rangeCount; i++) {
     let range = selection.getRangeAt(i);
-    let newRange = document.createRange();
     if(!range.collapsed) {
+      let newRange = document.createRange(); // 新建range
       getAllNodes(range, (node: HTMLElement): void => {
         selection.removeRange(range);
-        let start: number;
-        let end: number;
-        node === range.startContainer && (start = range.startOffset);
-        node === range.endContainer && (end = range.endOffset);
-        if(node.nodeType === 3) { // 文本节点
-          if(node.parentNode.childNodes.length === 1 && !start && (!end || end === node.nodeValue.length)) { //父节点拥有唯一子节点
+        let start: number = node === range.startContainer ? range.startOffset : undefined; // undefined 表示非首尾节点
+        let end: number = node === range.endContainer ? range.endOffset : undefined;
+        if(node.nodeType === 3) { // 当前节点为文本节点
+          if((node.parentNode.childNodes.length === 1) && !start && (!end || end === node.nodeValue.length)) { //父节点的唯一子节点
             $Z(node.parentNode).setStyle("font-size", fontSize);
             start !== undefined && newRange.setStart(node, start); // 重设range起始节点
             end !== undefined && newRange.setEnd(node, end); // 重设range结束节点
           }
           else {
-            let $span = document.createElement("span");
-            $span.innerText = node.nodeValue.substring(start, end);
-            $span.style.fontSize = fontSize;
+            let $span: HTMLElement = document.createElement("span");
+            let $text: Text = document.createTextNode(node.nodeValue.substring(start, end));
+            $span.appendChild($text);
+            $Z($span).setStyle("font-size", fontSize);
             let $prev: Text = !!start ? document.createTextNode(node.nodeValue.substring(0, start)) : null;
-            let $next: Text = !!end ? document.createTextNode(node.nodeValue.substring(end)) : null;
-            start !== undefined && newRange.setStart($span, 0); // 重设range起始节点
-            end !== undefined && newRange.setEnd($span, 1); // 重设range结束节点
+            let $next: Text = !!end ? document.createTextNode(node.nodeValue.substring(end)) : null;            
             replaceWith(node, [$prev, $span, $next]);
+            start !== undefined && newRange.setStart($text, 0);
+            end !== undefined && newRange.setEnd($text, $text.length);
           }        
         }
-        else { // 非文本节点
-          if(start === undefined && end === undefined) { // 属于中间节点，直接设置字体          
+        else { // 当前节点为非文本节点
+          if((start === undefined && end === undefined) || (start === 0 && end === 1)) { // 中间节点，或者Range完整覆盖了该节点
             $Z(node).setStyle("font-size", fontSize);
           }
-          else {         
+          else { // 属于首|尾节点      
+            let nodes = node.childNodes;
+            let min = start || 0;
+            let max = end || nodes.length;            
+            nodes.forEach((item: Node, index: number) => {
+              if(index >= min && index <= max) {
+                if(item.nodeType === 3) {
+                  let $span = document.createElement("span");
+                  $span.innerText = item.nodeValue;
+                  $span.style.fontSize = fontSize;
+                  replaceWith(item, [$span]);
+                }
+                else {
+                  $Z(item).setStyle("font-size", fontSize);
+                }
+              }
+            });            
             start !== undefined && newRange.setStart(node, start);
             end !== undefined && newRange.setEnd(node, end);
-            if(start === 0 && end === 1) { // 代表拥有唯一子节点，直接设置父节点字体
-              $Z(node).setStyle("font-size", fontSize);
-            }
-            else {
-              let nodes = node.childNodes;
-              let min = start || 0;
-              let max = end || nodes.length;            
-              nodes.forEach((item: Node, index: number) => {
-                if(index >= min && index <= max) {
-                  if(item.nodeType === 3) {
-                    let $span = document.createElement("span");
-                    $span.innerText = item.nodeValue;
-                    $span.style.fontSize = fontSize;
-                    replaceWith(item, [$span]);
-                  }
-                  else {
-                    $Z(item).setStyle("font-size", fontSize);
-                  }
-                }
-              });
-            }
           }
+          filterFontSize(node); // 对非文本节点进行过滤优化
         }
       });
       selection.addRange(newRange);
@@ -173,10 +163,11 @@ const setFontSize = function(fontSize: string): boolean {
       execCommand("insertHTML", `<span style="font-size: ${fontSize}">&#8203;</span>`);
       selection.collapseToEnd();
     }
-  }  
+  }
+  return true;
 }
 
-// 查询当前选取的字号
+// 查询当前选区的字号
 const queryFontSize = function(): string {
   let selection = window.getSelection();
   let fontSize: string;
@@ -199,6 +190,31 @@ const queryFontSize = function(): string {
     }
   }
   return fontSize;
+}
+
+// 反向优化dom节点，去除无意义的span和字号样式
+const filterFontSize = function(node: HTMLElement): void {
+  let nodes: NodeList = node.childNodes;
+  let hasFontSizeAll: boolean = true;
+  for(let i=0,len=nodes.length; i<len; i++) {
+    let dom: HTMLElement = nodes[i] as HTMLElement;
+    if(dom.nodeType === 3) {
+      hasFontSizeAll = false;
+    }
+    else {
+      filterFontSize(dom);
+      if(dom.tagName === "SPAN") {
+        let styleStr = dom.getAttribute("style");
+        if(!styleStr) { // 没有任何内联样式的span标签直接过滤
+          replaceWith(dom, dom.childNodes);
+        }
+        else if(styleStr.indexOf("font-size") < 0) {
+          hasFontSizeAll = false;
+        }
+      }
+    }    
+  }
+  hasFontSizeAll && (node.style.fontSize = "");
 }
 
 // 插入html片段
@@ -228,6 +244,13 @@ const insertHTML = function(cmdParam: string): boolean {
   return false;
 }
 
+// 清除格式
+const removeFormat = function(): boolean {
+  let result = document.execCommand("removeFormat", false);
+  setFontSize(null);
+  return result;
+}
+
 export const execCommand = function(cmdName: string, cmdParam?: string): boolean {
   let result: boolean;
   switch(cmdName) {
@@ -236,6 +259,9 @@ export const execCommand = function(cmdName: string, cmdParam?: string): boolean
       break;
     case "insertHTML":
       result = insertHTML(cmdParam);
+      break;
+    case "removeFormat":
+      result = removeFormat();
       break;
     default: 
       result = document.execCommand(cmdName, false, cmdParam || null);
