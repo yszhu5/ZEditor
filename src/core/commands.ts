@@ -154,10 +154,12 @@ const setFontSize = function(fontSize: string): boolean {
             start !== undefined && newRange.setStart(node, start);
             end !== undefined && newRange.setEnd(node, end);
           }
-          filterFontSize(node); // 对非文本节点进行过滤优化
         }
       });
       selection.addRange(newRange);
+      let container: Node = newRange.commonAncestorContainer; // 对非节点进行过滤
+      let parent: Node = container.nodeType === 3 ? container.parentNode.parentNode : container.parentNode;
+      filterFontSize(parent || container.parentNode || container);
     }
     else {
       execCommand("insertHTML", `<span style="font-size: ${fontSize}">&#8203;</span>`);
@@ -193,15 +195,16 @@ const queryFontSize = function(): string {
 }
 
 // 反向优化dom节点，去除无意义的span和字号样式
-const filterFontSize = function(node: HTMLElement): void {
+const filterFontSize = function(node: Node): void {
   let nodes: NodeList = node.childNodes;
   let hasFontSizeAll: boolean = true;
+  //let fontSize: string = "";
   for(let i=0,len=nodes.length; i<len; i++) {
     let dom: HTMLElement = nodes[i] as HTMLElement;
-    if(dom.nodeType === 3) {
+    if(dom.nodeType === 3 && dom.nodeValue) {
       hasFontSizeAll = false;
     }
-    else {
+    else if(dom.nodeType === 1) {
       filterFontSize(dom);
       if(dom.tagName === "SPAN") {
         let styleStr = dom.getAttribute("style");
@@ -214,7 +217,7 @@ const filterFontSize = function(node: HTMLElement): void {
       }
     }    
   }
-  hasFontSizeAll && (node.style.fontSize = "");
+  hasFontSizeAll && ((node as HTMLElement).style.fontSize = "");
 }
 
 // 插入html片段
