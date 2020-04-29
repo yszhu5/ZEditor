@@ -11,3 +11,5 @@ declare interface HTMLElement {
 declare interface EventHandler {
   (e: UIEvent): void;
 }
+
+

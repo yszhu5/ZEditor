@@ -36,26 +36,23 @@ export default class ZEditor {
   private init() { // 编辑器初始化
     this.el.style.position = "relative";
     this.el.className += " zditor__wrap";
-    this.initToolBar();
-    this.initBody();
+    this.el.innerHTML = `<header class="tool-bar__wrap" tabindex="0"></header><div class="editor-body__wrap" contenteditable="true"></div>`;
+    let $tool: HTMLElement = this.el.querySelector(".tool-bar__wrap");
+    let $body: HTMLElement = this.el.querySelector(".editor-body__wrap");
+    this.initToolBar($tool, $body);
+    this.initBody($body);
     this.eventBind();
   }
 
-  private initToolBar() { // 工具栏初始化
-    let $el = document.createElement("header");
-    $el.className = "tool-bar__wrap";
-    this.toolBar = new ToolBar($el, this.config, this.queryAllStates);
-    this.el.appendChild($el);
+  private initToolBar(el: HTMLElement, body: HTMLElement) { // 工具栏初始化
+    this.toolBar = new ToolBar(el, body, this.config, this.queryAllStates);
   }
 
-  private initBody() { // 编辑区初始化
+  private initBody(body: HTMLElement) { // 编辑区初始化
     if(this.toolBar.el) {
-      this.$body = document.createElement("div");
-      this.$body.className = "editor-body__wrap";
-      this.$body.contentEditable = "true";
+      this.$body = body;
       this.setDeafultStyle();
       this.calcBodyHeight(); 
-      this.el.appendChild(this.$body);
       this.focus();      
       this.queryAllStates();
     }
@@ -66,15 +63,17 @@ export default class ZEditor {
 
   private eventBind() { // 编辑器事件绑定
     let vm = this;
-    vm.getSelection = vm.getSelection.bind(vm);
+    vm.storeRanges = vm.storeRanges.bind(vm);
+    vm.setSelection = vm.setSelection.bind(vm);
     vm.queryAllStates = vm.queryAllStates.bind(vm);
     vm.calcBodyHeight = vm.calcBodyHeight.bind(vm);
     vm.insertSelection = vm.insertSelection.bind(vm);
-    $Z(this.$body).on("blur", vm.getSelection); // 监听编辑区失焦事件
+    $Z(this.$body).on("blur", vm.storeRanges); // 监听编辑区失焦事件
     $Z(this.$body).on("mouseup", vm.queryAllStates); // 监听编辑区mouseup事件
     $Z(this.$body).on("keyup", (evt: UIEvent) => {
       this.callEvent("contentChange", evt);
     });
+    $Z(this.toolBar.el).on("focus", vm.setSelection);
     $Z.onResize(vm.calcBodyHeight);
   }
 
@@ -95,7 +94,6 @@ export default class ZEditor {
       this.$body.innerHTML = "<p><br></p>";
     }
   }
-
 
   on(evtName: string, handler: Function): ZEditor { // 绑定编辑器事件
     if(!this.events[evtName]) {
@@ -150,12 +148,16 @@ export default class ZEditor {
     }); 
   }
 
-  getSelection() { // 保存当前选区，保存为range
+  storeRanges() { // 保存当前选取Range对象
     let selection = window.getSelection();
     this.ranges = [];
     for(let i=0; i<selection.rangeCount; i++) {
       this.ranges.push(selection.getRangeAt(i));
     }
+  }
+
+  setSelection() { // 恢复当前选区    
+    let selection = window.getSelection();
     selection.removeAllRanges();
     this.ranges.forEach(range => {
       selection.addRange(range);
@@ -164,13 +166,13 @@ export default class ZEditor {
 
   execCommand(cmdName: string, cmdParam?: string, ranges?: Array<Range>) { // 执行工具栏对应的command命令
     ranges && (this.ranges = ranges);
-    this.getSelection();
+    this.setSelection();
     execCommand(cmdName, cmdParam);
   }
 
   queryCommand(cmdName: string, ranges?: Array<Range>, ) { //查询工具栏对应的command状态&计算值
     ranges && (this.ranges = ranges);
-    this.getSelection();
+    this.setSelection();
     return queryCommand(cmdName);
   }
 

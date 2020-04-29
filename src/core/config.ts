@@ -135,12 +135,7 @@ export const defaults: Config = {
     { key: "14pt", value: "四号" },
     { key: "12pt", value: "小四"},
     { key: "11pt", value: "五号", default: true },
-    { key: "9pt", value: "小五" },
-    { key: "8pt", value: "六号" },
-    { key: "7pt", value: "小六" },
-    { key: "6pt", value: "七号" },
-    { key: "7pt", value: "小六" },
-    { key: "5pt", value: "八号" }
+    { key: "9pt", value: "小五" }
   ],
   colorOptions: [
     { key: "rgb(255, 255, 255)", value: ""},

@@ -3,20 +3,12 @@ p {
   padding: 0;
 }
 
-
-
-
-
-
-
-
-
-
 .tool-bar__wrap {
   background-color: #2b579a;
   font-size: 14px;
   color: #fff;
   box-shadow: -1px 1px 2px 1px rgba(200,200,200,0.6);
+  outline: none;
 }
 
 .tool-bar__tab-wrap {
@@ -65,24 +57,19 @@ p {
 }
 
 .zeditor-tool__item.is-active,
+.zeditor-tool__item:hover,
 .zeditor-tool__item.show,
-.zeditor-tool__item:hover {
+.zeditor-tool__item.open {
   background-color: #c6c6c6;
 }
 
 .zeditor-tool__item input {
   width: calc(100% - 12px);
-  height: 24px;
-  padding-left: 2px;
-  border: none;
-  outline: none;
-  vertical-align: top;
-  background-color: transparent;
   color: #505050;
-  box-sizing: border-box;
 }
 
-.zeditor-tool__item.show .ze-popper__wrap {
+.zeditor-tool__item.show .ze-popper__wrap,
+.zeditor-tool__item.open .ze-popper__wrap{
   display: block;
 }
 
@@ -151,6 +138,7 @@ p {
 }
 /* 编辑器主体部分样式结束 */
 
+/* icon 集合 */
 [class*=" ze-icon-"], [class^="ze-icon-"] {
   display: inline-block;
   width: 16px;
@@ -271,10 +259,62 @@ p {
   background-image: url(../images/icon-insertRemark.svg);
 }
 
+.ze-icon-arrow--down {
+  background-image: url(../images/icon-arrow--down.svg);
+}
 
+.ze-icon-arrow--up {
+  background-image: url(../images/icon-arrow--down.svg);
+  transform: rotate(-180deg);
+}
 
+.ze-icon-fork {
+  background-image: url(../images/icon-fork.svg);
+}
 
+/* 三角箭头样式 */
+.ze-arrow:after {
+  position: absolute;
+  top: calc(50% - 1.5px);
+  content: "";
+  width: 0;
+  height: 0;
+  right: 2px;
+  border-color: #3D4757 transparent transparent;
+  border-style: solid solid none;
+  border-width: 3px 3px 0;
+  transition: transform .3s;
+}
 
+.ze-arrow.up:after {
+  transform: rotate(-180deg);
+}
+
+.ze-dropup:after {
+  position: absolute;
+  top: calc(50% - 1.5px);
+  content: "";
+  width: 0;
+  height: 0;
+  right: 2px;
+  border-color: #505050 transparent transparent;
+  border-style: solid solid none;
+  border-width: 3px 3px 0;
+  transition: transform .3s;
+}
+
+/* 输入框样式 */
+.zeditor-tool__input {  
+  height: 24px;
+  padding-left: 2px;
+  border: none;
+  outline: none;
+  vertical-align: top;
+  background-color: transparent;  
+  box-sizing: border-box;
+}
+
+/* 弹出层样式 */
 .ze-popper__wrap {
   position: absolute;
   left: 0;
@@ -302,20 +342,8 @@ p {
   background-color: #f3f3f3;
 }
 
-.dropdown:after {
-  position: absolute;
-  top: calc(50% - 1.5px);
-  content: "";
-  width: 0;
-  height: 0;
-  right: 2px;
-  border-color: #505050 transparent transparent;
-  border-style: solid solid none;
-  border-width: 3px 3px 0;
-  transition: transform .3s;
-}
-
-.color-picker {
+/* 颜色选择器样式 */
+.ze-color-picker {
   width: 214px;
   height: 220px;
   padding: 4px 4px 8px 8px;  
@@ -324,7 +352,7 @@ p {
   box-sizing: border-box;
 }
 
-.color-picker__item {
+.ze-color-picker__item {
   position: relative;
   display: inline-block;
   width: 16px;
@@ -333,14 +361,60 @@ p {
   box-sizing: border-box;
 }
 
-.color-picker__item.is-white {
+.ze-color-picker__item.is-white {
   border: 1px solid #ddd;
 }
 
-.color-picker__item.is-selected,
-.color-picker__item:hover {
+.ze-color-picker__item.is-selected,
+.ze-color-picker__item:hover {
   border: 1px solid #fff;
   box-shadow: 0px 0px 1px 1px #ffae00;
+}
+
+/* 替换 | 查找样式 */
+.ze-search__wrap {
+  text-align: left;
+  width: 300px;
+  right: 0;
+  left: auto;
+}
+
+.ze-search__banner {
+  text-align: left;
+  padding: 0 8px;
+  font-weight: bold;
+}
+
+.ze-search__banner i {
+  float: right;
+}
+
+.ze-search__body {
+  padding: 0 8px;
+}
+
+.ze-search__body .left-content {
+  overflow: hidden;
+}
+
+.ze-search__body .input {
+  width: 100%;
+}
+
+.ze-search__body .right-btns {
+  float: right;
+}
+
+.ze-search__body .ze-search__result {
+  margin: 0 4px;
+}
+
+.ze-search__body i {
+  margin-top: 4px;
+}
+
+.ze-search__item {
+  background-color: yellow;
 }
 
 

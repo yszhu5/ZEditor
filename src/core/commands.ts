@@ -113,21 +113,22 @@ const setFontSize = function(fontSize: string): boolean {
         let start: number = node === range.startContainer ? range.startOffset : undefined; // undefined 表示非首尾节点
         let end: number = node === range.endContainer ? range.endOffset : undefined;
         if(node.nodeType === 3) { // 当前节点为文本节点
-          if((node.parentNode.childNodes.length === 1) && !start && (!end || end === node.nodeValue.length)) { //父节点的唯一子节点
-            $Z(node.parentNode).setStyle("font-size", fontSize);
+          let parent: HTMLElement = node.parentNode as HTMLElement;
+          if((parent.style.fontSize === fontSize) || (parent.childNodes.length === 1 && !start && (!end || end === node.nodeValue.length))) { 
+            parent.style.fontSize = fontSize;
             start !== undefined && newRange.setStart(node, start); // 重设range起始节点
             end !== undefined && newRange.setEnd(node, end); // 重设range结束节点
           }
-          else {
+          else {            
             let $span: HTMLElement = document.createElement("span");
             let $text: Text = document.createTextNode(node.nodeValue.substring(start, end));
-            $span.appendChild($text);
-            $Z($span).setStyle("font-size", fontSize);
+            $span.style.fontSize = fontSize;
+            $span.appendChild($text);           
             let $prev: Text = !!start ? document.createTextNode(node.nodeValue.substring(0, start)) : null;
             let $next: Text = !!end ? document.createTextNode(node.nodeValue.substring(end)) : null;            
             replaceWith(node, [$prev, $span, $next]);
             start !== undefined && newRange.setStart($text, 0);
-            end !== undefined && newRange.setEnd($text, $text.length);
+            end !== undefined && newRange.setEnd($text, $text.length);            
           }        
         }
         else { // 当前节点为非文本节点
@@ -194,11 +195,10 @@ const queryFontSize = function(): string {
   return fontSize;
 }
 
-// 反向优化dom节点，去除无意义的span和字号样式
+// 过滤dom节点，去除无意义的span和字号样式
 const filterFontSize = function(node: Node): void {
   let nodes: NodeList = node.childNodes;
   let hasFontSizeAll: boolean = true;
-  //let fontSize: string = "";
   for(let i=0,len=nodes.length; i<len; i++) {
     let dom: HTMLElement = nodes[i] as HTMLElement;
     if(dom.nodeType === 3 && dom.nodeValue) {
@@ -206,14 +206,16 @@ const filterFontSize = function(node: Node): void {
     }
     else if(dom.nodeType === 1) {
       filterFontSize(dom);
-      if(dom.tagName === "SPAN") {
+      if(dom.tagName === "SPAN" && !dom.className) {
         let styleStr = dom.getAttribute("style");
-        if(!styleStr) { // 没有任何内联样式的span标签直接过滤
+        // 没有任何内联样式 || 内联字号同继承字号相同       
+        if(!styleStr) {
           replaceWith(dom, dom.childNodes);
-        }
-        else if(styleStr.indexOf("font-size") < 0) {
           hasFontSizeAll = false;
         }
+        else if(styleStr.indexOf("font-size") < 0) { //内联样式中span标签直接过滤
+          hasFontSizeAll = false;
+        }       
       }
     }    
   }
@@ -223,7 +225,6 @@ const filterFontSize = function(node: Node): void {
 // 插入html片段
 const insertHTML = function(cmdParam: string): boolean {
   let selection = window.getSelection();
-  console.log(selection);
   let $div = document.createElement("div");
   $div.innerHTML = cmdParam;
   for(let i=0; i< selection.rangeCount; i++) {
@@ -248,13 +249,13 @@ const insertHTML = function(cmdParam: string): boolean {
 }
 
 // 清除格式
-const removeFormat = function(): boolean {
+const removeFormat = function(): boolean {  
   let result = document.execCommand("removeFormat", false);
-  setFontSize(null);
+  //setFontSize(null);
   return result;
 }
 
-export const execCommand = function(cmdName: string, cmdParam?: string): boolean {
+export const execCommand = function(cmdName: string, cmdParam?: any): boolean {
   let result: boolean;
   switch(cmdName) {
     case "fontSize": 

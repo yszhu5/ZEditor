@@ -2,16 +2,30 @@ import { Tool, Option, Config } from "./config";
 import $Z from '../domUtil/index';
 import { execCommand, queryCommand } from "./commands";
 
+interface SearchResult {
+  index: number,
+  total: number,
+  list: NodeList
+}
+
 export class ToolBar { // 编辑器工具栏class
   el: HTMLElement
+  $body: HTMLElement
   config: Config
+  callCommand: Function
   activeTab: string
-  callCommand: Function 
-  constructor(el: HTMLElement, config: Config, callCommand: Function) {
+  searchResult: SearchResult  
+  constructor(el: HTMLElement, $body: HTMLElement, config: Config, callCommand: Function) {
     this.el = el;
+    this.$body = $body;
     this.config = config;
     this.callCommand = callCommand;
     this.activeTab = null;
+    this.searchResult = {
+      index: 0,
+      total: 0,
+      list: null
+    };
     this.init();
   }
 
@@ -59,6 +73,12 @@ export class ToolBar { // 编辑器工具栏class
     this.el.appendChild($tool);
   }
 
+  private eventBind(): void { // 事件绑定
+    let vm = this;
+    vm.hideAllPopper = this.hideAllPopper.bind(vm);
+    $Z(document.body).on("click", this.hideAllPopper);
+  }
+
   initToolItem(tool: Tool): HTMLElement { // 初始化单个工具
     let handler = tool.handler;
     tool.handler = (evt: UIEvent, tool: Tool, cmdParam?: string): boolean => {
@@ -82,6 +102,9 @@ export class ToolBar { // 编辑器工具栏class
       case "fontSize": // 字号工具初始化
         tool.setState = () => this.selectFontSize(tool);
         $item = this.initFontSelect(tool, this.config.fontSizeOptions, {});
+        break;
+      case "search": // 查找工具
+        $item = this.initSearch(tool);
         break;
       default: // bold, italic, underline, strikeThrough
         $item = this.initButton(tool);
@@ -111,8 +134,8 @@ export class ToolBar { // 编辑器工具栏class
     { top=28, height=300, width }: { top?: number, width?: number, height?: number }
   ): HTMLElement {
     let $select: HTMLElement = document.createElement("div");
-    $select.className = `zeditor-tool__item ${tool.key} dropdown`;
-    $select.innerHTML = `<input type="text" class="select-input" />`;
+    $select.className = `zeditor-tool__item ${tool.key} ze-arrow down`;
+    $select.innerHTML = `<input type="text" class="zeditor-tool__input" />`;
     this.setSelectValue($select, options);
     // 创建弹出层
     let $popper = this.createPopper(options, { top, height, width }, (evt?: UIEvent, option?: Option) => {
@@ -137,18 +160,18 @@ export class ToolBar { // 编辑器工具栏class
   initColorPicker(tool: Tool): HTMLElement {
     tool.setState = () => this.selectColor.call(this, tool);
     let $picker: HTMLElement = document.createElement("div");
-    $picker.className = `zeditor-tool__item ${tool.key} dropdown`;
+    $picker.className = `zeditor-tool__item ${tool.key} ze-arrow down`;
     $picker.innerHTML = `<i class="ze-icon-${tool.key}"></i><span class="color-block"></span>`;
     let $block: HTMLElement = $picker.querySelector(".color-block"); // 颜色指示器
     let $popper: HTMLElement = document.createElement("div");
-    $popper.className = "ze-popper__wrap color-picker";
+    $popper.className = "ze-popper__wrap ze-color-picker";
     $popper.style.top = "28px";
     function createItems(color: Option): HTMLElement {
       let $colorItem = document.createElement("div");
-      $colorItem.className = `color-picker__item ${color.key === "rgb(255, 255, 255)" ? "is-white": ''}`;
+      $colorItem.className = `ze-color-picker__item ${color.key === "rgb(255, 255, 255)" ? "is-white": ''}`;
       $colorItem.style.backgroundColor = color.key;
       $colorItem.onclick = (evt: UIEvent) => {
-        $Z($picker.querySelectorAll(".color-picker__item")).toggleClass("is-selected", false);
+        $Z($picker.querySelectorAll(".ze-color-picker__item")).toggleClass("is-selected", false);
         $Z($colorItem).toggleClass("is-selected", true);
         $block.style.backgroundColor = color.key;
         $picker.title = color.value;
@@ -157,13 +180,13 @@ export class ToolBar { // 编辑器工具栏class
       return $colorItem;
     }
     let $normalGroup = document.createElement("div");
-    $normalGroup.className = "color-picker__group--normal";   
+    $normalGroup.className = "ze-color-picker__group--normal";   
     this.config.colorOptions.forEach((color: Option) => {
       $normalGroup.appendChild(createItems(color));
     });
     $popper.appendChild($normalGroup);
     let $standardGroup = document.createElement("div");
-    $standardGroup.className = "color-picker__group--standard";
+    $standardGroup.className = "ze-color-picker__group--standard";
     $standardGroup.innerHTML = '<div>标准色</div>';
     this.config.standerColors.forEach((color: Option) => {
       $standardGroup.appendChild(createItems(color));
@@ -180,6 +203,61 @@ export class ToolBar { // 编辑器工具栏class
       }  
     });
     return $picker;
+  }
+
+  // 初始化查找工具
+  initSearch(tool: Tool): HTMLElement { 
+    let $button: HTMLElement = document.createElement("div");
+    $button.className = "zeditor-tool__item " + tool.key;
+    $button.title = tool.name;
+    $button.innerHTML = `<i class="ze-icon-${tool.key}"></i>`;    
+    let $popper: HTMLElement = document.createElement("div");
+    $popper.className = "ze-popper__wrap ze-search__wrap";
+    $popper.innerHTML = `
+      <div class="ze-search__banner">查找
+        <i title="关闭" class="ze-icon-fork"></i>
+      </div>
+      <div class="ze-search__body" title="">        
+        <div class="right-btns">
+          <span class="ze-search__result"></span>
+          <i title="下一个" class="ze-icon-arrow--down"></i>
+          <i title="上一个" class="ze-icon-arrow--up"></i>
+        </div>
+        <div class="left-content">
+          <input placeholder="输入查找内容" type="text" class="zeditor-tool__input" />
+        </div>       
+      </div>`;
+    $popper.style.top = "28px";
+    $button.appendChild($popper);
+    let timeOut: any = null;
+    let $input: HTMLInputElement = $popper.querySelector("input");
+    let $result: HTMLElement = $popper.querySelector(".ze-search__result");
+    let vm = $Z($button);
+    vm.on("click", ".ze-icon-fork", (evt: UIEvent) => {
+      vm.toggleClass("open");
+      let $input = $popper.querySelector("input");    
+      $input && ($input.value = "");
+      $result.innerText = "";
+      this.$body.style.paddingTop = "";
+      this.cleanKeyWords();
+    }).on("click", (evt: UIEvent) => {
+      this.hideAllPopper();
+      let clickTargtet: HTMLElement = evt.target as HTMLElement;
+      if(!$popper.contains(clickTargtet)) {
+        Promise.resolve().then(() => {
+          $popper.querySelector("input").focus();
+        });
+        vm.toggleClass("open", true);
+        this.$body.style.paddingTop = "60px";
+      }
+    }).on("keyup", "input", (evt: UIEvent, target: HTMLElement) => {
+      clearTimeout(timeOut);
+      timeOut = setTimeout(() => {
+        this.findKeyWords($input.value);
+        $result.innerText = `${this.searchResult.index}/${this.searchResult.total}`;
+      }, 500);
+    });
+    return $button;
   }
 
   createPopper(options: Array<Option>, { top, width, height }: { top?: number, width?: number, height?: number}, change: Function): HTMLElement {
@@ -238,7 +316,7 @@ export class ToolBar { // 编辑器工具栏class
       dpiY = tmpNode.offsetHeight;
       document.body.removeChild(tmpNode);
       tmpNode = null;
-      let $input: HTMLInputElement  = tool.elm.querySelector("input.select-input");
+      let $input: HTMLInputElement  = tool.elm.querySelector("input.zeditor-tool__input");
       fontSize && this.config.fontSizeOptions.forEach(option => {
         if(option.key.indexOf("pt") >= 0) { // 只支持pt和px俩种单位的字号选项
           if(parseFloat(option.key).toFixed(1) === (parseFloat(fontSize) * 72 / dpiY).toFixed(1)) {
@@ -261,28 +339,47 @@ export class ToolBar { // 编辑器工具栏class
       let color: string = tool.queryState();
       let $block: HTMLElement = tool.elm.querySelector(".color-block");
       $block && ($block.style.backgroundColor = color);
-      let $selected: HTMLElement = tool.elm.querySelector(".color-picker__item.is-selected");
-      $selected && ($selected.className = "color-picker__item");
-      $selected = tool.elm.querySelector(`.color-picker__item[style*="color: ${color}"]`);
-      $selected && ($selected.className = "color-picker__item is-selected");
+      let $selected: HTMLElement = tool.elm.querySelector(".ze-color-picker__item.is-selected");
+      $selected && ($selected.className = "ze-color-picker__item");
+      $selected = tool.elm.querySelector(`.ze-color-picker__item[style*="color: ${color}"]`);
+      $selected && ($selected.className = "ze-color-picker__item is-selected");
     }
   }
 
   setSelectValue(select: HTMLElement, options: Array<Option>, option?: Option | string) {
     let value: string = "";
-    let $input: HTMLInputElement  = select.querySelector("input.select-input");
+    let $input: HTMLInputElement  = select.querySelector("input.zeditor-tool__input");
     if(typeof option === "string") {
       option = options.find(item => item.key === option);
     }
-    option && (value = option.value); 
+    option && (value = option.value);
     $input && ($input.value = value);
     select.title = value;
   }
 
-  private eventBind(): void { // 事件绑定
-    let vm = this;
-    vm.hideAllPopper = this.hideAllPopper.bind(vm);
-    $Z(document.body).on("click", this.hideAllPopper);
+  findKeyWords(keyWords: string) {
+    this.cleanKeyWords();
+    if(keyWords) {
+      let html: string = this.$body.innerHTML;
+      let reg: RegExp = new RegExp(keyWords, "mg");
+      html = html.replace(reg, `<span class="ze-search__item">${keyWords}</span>`);
+      this.$body.innerHTML = html;
+      this.searchResult.list = this.$body.querySelectorAll(".ze-search__item");
+      this.searchResult.index = 1;
+      this.searchResult.total = this.searchResult.list.length;
+    }
+  }
+
+  cleanKeyWords() {
+    if(this.searchResult.list) {
+      let html = this.$body.innerHTML;
+      this.searchResult.list.forEach((item: HTMLElement) => {
+        html = html.replace(item.outerHTML, item.innerText);
+        item = null;
+      });
+      this.$body.innerHTML = html;
+    }
+    this.searchResult = { index: 0, total: 0, list: null };
   }
 }
 
