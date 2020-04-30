@@ -32,8 +32,9 @@ p {
 }
 
 .tool-bar__tool--base, .tool-bar__tool--insert, .tool-bar__tool--layout {
+  position: relative;
   background-color: #f3f3f3;
-  color: #505050;
+  color: #3D4757;
   line-height: 24px;
   min-height: 32px;
   padding: 4px 8px;
@@ -65,11 +66,11 @@ p {
 
 .zeditor-tool__item input {
   width: calc(100% - 12px);
-  color: #505050;
+  color: #3D4757;
 }
 
 .zeditor-tool__item.show .ze-popper__wrap,
-.zeditor-tool__item.open .ze-popper__wrap{
+.zeditor-tool__item.open .ze-popper__wrap {
   display: block;
 }
 
@@ -105,6 +106,11 @@ p {
   position: absolute;
   left: 2px;
   top: 2px;
+}
+
+.zeditor-tool__item.search,
+.zeditor-tool__item.replace {
+  position: static;
 }
 
 
@@ -373,10 +379,11 @@ p {
 
 /* 替换 | 查找样式 */
 .ze-search__wrap {
-  text-align: left;
-  width: 300px;
-  right: 0;
+  top: 34px;
+  right: 1px;
   left: auto;
+  text-align: left;
+  width: 400px;
 }
 
 .ze-search__banner {

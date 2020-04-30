@@ -227,7 +227,7 @@ export class ToolBar { // 编辑器工具栏class
           <input placeholder="输入查找内容" type="text" class="zeditor-tool__input" />
         </div>       
       </div>`;
-    $popper.style.top = "28px";
+    $popper.style.top = "33px";
     $button.appendChild($popper);
     let timeOut: any = null;
     let $input: HTMLInputElement = $popper.querySelector("input");
@@ -244,7 +244,7 @@ export class ToolBar { // 编辑器工具栏class
       this.hideAllPopper();
       let clickTargtet: HTMLElement = evt.target as HTMLElement;
       if(!$popper.contains(clickTargtet)) {
-        Promise.resolve().then(() => {
+        $Z.nextTick(() => {
           $popper.querySelector("input").focus();
         });
         vm.toggleClass("open", true);
@@ -254,9 +254,18 @@ export class ToolBar { // 编辑器工具栏class
       clearTimeout(timeOut);
       timeOut = setTimeout(() => {
         this.findKeyWords($input.value);
-        $result.innerText = `${this.searchResult.index}/${this.searchResult.total}`;
+        $result.innerText = this.searchResult.total ? `${this.searchResult.index}/${this.searchResult.total}` : "无匹配项";
       }, 500);
     });
+    return $button;
+  }
+
+  // 初始化替换工具
+  initReplace(tool: Tool): HTMLElement {
+    let $button: HTMLElement = document.createElement("div");
+    $button.className = "zeditor-tool__item " + tool.key;
+    $button.title = tool.name;
+    $button.innerHTML = `<i class="ze-icon-${tool.key}"></i>`;
     return $button;
   }
 

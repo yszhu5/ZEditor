@@ -209,6 +209,11 @@ function onResize(handler: EventHandler) {
   windowEvent.push(handler);
 }
 
+// 异步执行
+function nextTick(handler: PromiseCallBack) {
+  handler && Promise.resolve().then(handler);
+}
+
 const $Z = function(selector: any): DomUtil {
   return new DomUtil(selector);
 }
@@ -216,5 +221,6 @@ const $Z = function(selector: any): DomUtil {
 // 静态方法
 $Z.getTarget = getTarget;
 $Z.onResize = onResize;
+$Z.nextTick = nextTick;
 
 export default $Z;

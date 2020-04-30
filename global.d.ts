@@ -12,4 +12,8 @@ declare interface EventHandler {
   (e: UIEvent): void;
 }
 
+declare interface PromiseCallBack {
+  (value?: any): void | PromiseLike<void>
+}
+
 
